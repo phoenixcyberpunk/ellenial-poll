@@ -30,3 +30,6 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
 - Listing on ellenial.app.
 - Pentest along with the other apps (public broadcast channel is encrypted but floodable).
+
+## Status
+- 2026-11-03: v1 built and tested locally (Playwright, see Testing), pushed to `main`, Vercel project `ellenial-poll` created (auto-deploys from `main`), live at poll.ellenial.app. Waiting for Ellen's live test with real phones (the workspace can't reach Supabase). Not listed on ellenial.app yet.
