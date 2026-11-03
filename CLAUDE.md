@@ -28,6 +28,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - The workspace cannot reach supabase.co: live tests happen in Ellen's browser.
 
 ## Open
+- Change your vote (Ellen, 3 Nov): host decides at creation whether votes can be changed. Not built; v1 votes are final. When built: a changed vote replaces the old one (still one per phone), "Change my vote" only when allowed, and the poll kind is shown on the vote screen.
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
 - Listing on ellenial.app.
 - Pentest along with the other apps (public broadcast channel is encrypted but floodable).
