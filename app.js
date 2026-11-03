@@ -116,110 +116,14 @@
     return out;
   }
 
-  /* ---------------- base64url + crypto (same as ellenial quiz) ---------------- */
+  /* ---------------- the live room (shared ellenial-room.js, same engine as ellenial quiz) ---------------- */
 
-  function toB64u(bytes) {
-    var bin = '';
-    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function fromB64u(s) {
-    if (!/^[A-Za-z0-9_-]*$/.test(s)) return null;
-    try {
-      var bin = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4));
-      var out = new Uint8Array(bin.length);
-      for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-      return out;
-    } catch (e) { return null; }
-  }
-  function randomB64u(n) { return toB64u(crypto.getRandomValues(new Uint8Array(n))); }
-  var enc = new TextEncoder(), dec = new TextDecoder();
-
-  // Room = 16-byte id + 32-byte secret. Both travel only after '#', so no server ever sees them.
-  function roomKey(roomId, secret) {
-    var raw = fromB64u(secret);
-    if (!raw || raw.length !== 32) return Promise.reject(new Error('bad_secret'));
-    return crypto.subtle.importKey('raw', raw, 'HKDF', false, ['deriveKey']).then(function (base) {
-      return crypto.subtle.deriveKey(
-        { name: 'HKDF', hash: 'SHA-256', salt: enc.encode('ep1|' + roomId), info: enc.encode('ep1|room-enc') },
-        base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-    });
-  }
-  function seal(key, roomId, obj) {
-    var iv = crypto.getRandomValues(new Uint8Array(12));
-    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv, additionalData: enc.encode('ep1|' + roomId) }, key, enc.encode(JSON.stringify(obj)))
-      .then(function (ct) {
-        var c = new Uint8Array(ct), out = new Uint8Array(12 + c.length);
-        out.set(iv); out.set(c, 12);
-        return '1.' + toB64u(out);
-      });
-  }
-  function unseal(key, roomId, blob) {
-    if (typeof blob !== 'string' || blob.slice(0, 2) !== '1.' || blob.length > 60000) return Promise.resolve(null);
-    var bytes = fromB64u(blob.slice(2));
-    if (!bytes || bytes.length < 29) return Promise.resolve(null);
-    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(0, 12), additionalData: enc.encode('ep1|' + roomId) }, key, bytes.slice(12))
-      .then(function (p) { return JSON.parse(dec.decode(p)); })
-      .catch(function () { return null; });
-  }
-
-  /* ---------------- the live connection (same engine as ellenial quiz) ---------------- */
-
-  var sbClient = null;
-  function connect(roomId, secret, onMessage, onStatus) {
-    var closed = false, key = null, chan = null, bc = null;
-    var ready = roomKey(roomId, secret).then(function (k) { key = k; });
-
-    function deliver(payload) {
-      if (closed || !key || !payload) return;
-      unseal(key, roomId, payload.b).then(function (msg) { if (msg && !closed) onMessage(msg); });
-    }
-    ready.then(function () {
-      if (closed) return;
-      if (isLocalDemo()) {
-        // Development only: tabs on localhost talk through BroadcastChannel instead of Supabase.
-        bc = new BroadcastChannel('poll:' + roomId);
-        bc.onmessage = function (e) { deliver(e.data); };
-        onStatus(true);
-        return;
-      }
-      if (!window.supabase) { onStatus(false); return; }
-      if (!sbClient) {
-        sbClient = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey, {
-          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-        });
-      }
-      chan = sbClient.channel('poll:' + roomId, { config: { broadcast: { self: false, ack: false } } });
-      chan.on('broadcast', { event: 'm' }, function (e) { deliver(e.payload); });
-      chan.subscribe(function (status) { if (!closed) onStatus(status === 'SUBSCRIBED'); });
-    }).catch(function () { onStatus(false); });
-
-    return {
-      send: function (obj) {
-        return ready.then(function () {
-          if (closed) return;
-          return seal(key, roomId, obj).then(function (b) {
-            if (bc) bc.postMessage({ b: b });
-            else if (chan) chan.send({ type: 'broadcast', event: 'm', payload: { b: b } });
-          });
-        }).catch(function () {});
-      },
-      close: function () {
-        closed = true;
-        if (bc) bc.close();
-        if (chan && sbClient) sbClient.removeChannel(chan);
-      }
-    };
-  }
+  var R = window.EllenialRoom;
+  var fromB64u = R.fromB64u, randomB64u = R.randomB64u;
+  var liveRoom = R.create({ app: 'poll', tag: 'ep1', supabaseUrl: CONFIG.supabaseUrl, supabaseKey: CONFIG.supabaseKey, local: LOCAL_DEMO, maxBytes: 60000 });
+  function connect(roomId, secret, onMessage, onStatus) { return liveRoom.connect(roomId, secret, onMessage, onStatus); }
   function joinLink(roomId, secret) { return shareOrigin() + '/join#' + roomId + '.' + secret; }
-  function readRoomRef(text) {
-    var t = text || '';
-    try { t = decodeURIComponent(t); } catch (e) { /* keep */ }
-    var m = t.match(/([A-Za-z0-9_-]{22})\.([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/);
-    if (!m) return null;
-    var id = fromB64u(m[1]), sec = fromB64u(m[2]);
-    return id && id.length === 16 && sec && sec.length === 32 ? { roomId: m[1], secret: m[2] } : null;
-  }
+  function readRoomRef(text) { return R.readRef(text); }
 
   /* ---------------- results: the privacy rules live here, and only here ---------------- */
 
@@ -368,7 +272,7 @@
     options = options.filter(function (o) { var k = o.toLowerCase(); if (seen[k]) return false; seen[k] = 1; return true; });
     if (!question) return show(createView('Write a question first.'));
     if (options.length < 2) return show(createView('Add at least two different options.'));
-    var roomId = randomB64u(16), secret = randomB64u(32);
+    var fresh = R.newRoom(), roomId = fresh.roomId, secret = fresh.secret;
     room = {
       role: 'host', roomId: roomId, secret: secret, link: joinLink(roomId, secret), online: false,
       poll: { q: question, type: draft.type, options: options, hide: draft.hide },

@@ -29,6 +29,7 @@ Part of [Ellenial](https://ellenial.app): free tools made by people, for people.
 | Path | What it is |
 | --- | --- |
 | `index.html`, `styles.css`, `app.js` | The app |
+| `ellenial-room.js` | The shared encrypted live room (from ellenial quiz), reusable by other Ellenial apps |
 | `ellenial-theme.js` | Shared Ellenial Auto / Light / Dark switch, unchanged from ellenial maps |
 | `vendor/` | supabase-js (bundled to one file) and qrcode-generator, both MIT, served from this site |
 | `fonts/` | Self-hosted Fraunces and DM Sans with their licences |

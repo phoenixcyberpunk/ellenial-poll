@@ -7,6 +7,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - **Hosting:** Vercel team "The Ellenial Project" (`the-ellenial-project`), project `ellenial-poll`, domain `poll.ellenial.app`.
 - **Live connection:** Supabase project `gillefeeling` (ref `knvrvmqdxvcatsrvkrgx`), **Realtime broadcast only**: no tables, no functions, no migrations. Channel `poll:<roomId>`, event `m`, payload `{ b: "1." + base64url(iv‖ciphertext) }`. HKDF salt/info and AAD prefix `ep1|`.
 - **Stack:** plain HTML/CSS/JS, no build. `vendor/` and `fonts/` copied from ellenial quiz.
+- **Shared live room:** `ellenial-room.js` (window.EllenialRoom) is the quiz's encrypted broadcast engine pulled out into one reusable file, like `ellenial-theme.js`. Other apps (the turn queue first) copy it unchanged and pick their own `app` prefix and crypto `tag`. Quiz still has its own inline copy for now.
 
 ## Decisions (3 Nov 2026)
 - Own app, like the quiz; listed in the ellenial.app library. Not a mode inside Quiz.
