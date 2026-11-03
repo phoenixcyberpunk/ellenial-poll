@@ -28,10 +28,11 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - The workspace cannot reach supabase.co: live tests happen in Ellen's browser.
 
 ## Open
+- Small polls (Ellen, 3 Nov): some polls have fewer than 5 voters; today they never get shares, only the top pick at close. Revisit later, no decision. Idea: host opts in at creation with a plain warning that small groups can tell who picked what. Any change goes in `resultsFor()`.
 - Change your vote (Ellen, 3 Nov): host decides at creation whether votes can be changed. Not built; v1 votes are final. When built: a changed vote replaces the old one (still one per phone), "Change my vote" only when allowed, and the poll kind is shown on the vote screen.
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
 - Listing on ellenial.app.
 - Pentest along with the other apps (public broadcast channel is encrypted but floodable).
 
 ## Status
-- 2026-11-03: v1 built and tested locally (Playwright, see Testing), pushed to `main`, Vercel project `ellenial-poll` created (auto-deploys from `main`), live at poll.ellenial.app. Waiting for Ellen's live test with real phones (the workspace can't reach Supabase). Not listed on ellenial.app yet.
+- 2026-11-03: v1 built and tested locally (Playwright, see Testing), pushed to `main`, Vercel project `ellenial-poll` created (auto-deploys from `main`), live at poll.ellenial.app. Waiting for Ellen's live test with real phones (the workspace can't reach Supabase). Not listed on ellenial.app yet. Paused by Ellen at 14:24: looks good on the phone.
