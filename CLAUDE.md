@@ -13,7 +13,9 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - Own app, like the quiz; listed in the ellenial.app library. Not a mode inside Quiz.
 - Anonymous only. Names may come later if real users ask.
 - Turnout: five-step bar (fills 0/1/3/4/5 segments) + words, as a share of phones seen in the last 40 s (plus everyone who voted). Never a number.
-- Results: rounded percentages from 5 votes; host can hide them until close; 2–4 votes at close = top pick only; under 2 = nothing. All in `resultsFor()`; keep it the single place for these rules.
+- Results: rounded percentages, never names or counts. All in `resultsFor()`; keep it the single place for these rules.
+  - While open: live shares only from 5 votes (so nobody can match a bar jump to whoever just tapped), or hidden entirely if the host chose "Hide results until I close".
+  - At close (Ellen, 4 Nov, replaces the 3 Nov top-pick-only rule): show the shares however few voted. People can see they're too few to be anonymous; no "Small group" setting. The explainer says so honestly. NOT BUILT YET: v1 still shows only the top pick at 2–4 votes.
 - One vote per phone (localStorage `ep:voted:<roomId>`, pid in `ep:pid:<roomId>`), honour-based and said openly. Votes are final.
 - Host can save the result as a PNG (canvas, share sheet on phones, download elsewhere). Ending sends `end` and the room is gone.
 - Room name (4 letters from the room id) is only a visual check; joining needs the link/QR (a typed code would need a server lookup).
@@ -28,7 +30,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - The workspace cannot reach supabase.co: live tests happen in Ellen's browser.
 
 ## Open
-- Small polls: two options, not decided (see the Project notes). A = host opt-in "Small group" (mocked up). B = Ellen, 4 Nov: no setting, show shares at close however few voted, people can see they're too few. If B: keep the 5-vote minimum for LIVE results while open (timing leak), drop it at close, reword the explainer's small-groups point. Any change goes in `resultsFor()`.
+- Build the 4 Nov results rule plus the host choices (change vote, hide until close at creation) once Ellen approves mock-ups 5 and 6.
 - Change your vote (Ellen, 3 Nov): host decides at creation whether votes can be changed. Not built; v1 votes are final. When built: a changed vote replaces the old one (still one per phone), "Change my vote" only when allowed, and the poll kind is shown on the vote screen.
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
 - Listing on ellenial.app.
