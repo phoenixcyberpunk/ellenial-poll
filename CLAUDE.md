@@ -28,7 +28,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - The workspace cannot reach supabase.co: live tests happen in Ellen's browser.
 
 ## Open
-- Small polls (Ellen, 3 Nov): some polls have fewer than 5 voters; today they never get shares, only the top pick at close. Revisit later, no decision. Idea: host opts in at creation with a plain warning that small groups can tell who picked what. Any change goes in `resultsFor()`.
+- Small polls: two options, not decided (see the Project notes). A = host opt-in "Small group" (mocked up). B = Ellen, 4 Nov: no setting, show shares at close however few voted, people can see they're too few. If B: keep the 5-vote minimum for LIVE results while open (timing leak), drop it at close, reword the explainer's small-groups point. Any change goes in `resultsFor()`.
 - Change your vote (Ellen, 3 Nov): host decides at creation whether votes can be changed. Not built; v1 votes are final. When built: a changed vote replaces the old one (still one per phone), "Change my vote" only when allowed, and the poll kind is shown on the vote screen.
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
 - Listing on ellenial.app.
