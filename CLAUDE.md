@@ -33,8 +33,8 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - Build the 4 Nov results rule plus the host choices (change vote, hide until close at creation) once Ellen approves mock-ups 5 and 6.
 - Change your vote (Ellen, 3 Nov): host decides at creation whether votes can be changed. Not built; v1 votes are final. When built: a changed vote replaces the old one (still one per phone), "Change my vote" only when allowed, and the poll kind is shown on the vote screen.
 - App icon (Ellen's own art, per the Ellenial icon template) and manifest.
-- Listing on ellenial.app.
 - Pentest along with the other apps (public broadcast channel is encrypted but floodable).
 
 ## Status
 - 2026-11-03: v1 built and tested locally (Playwright, see Testing), pushed to `main`, Vercel project `ellenial-poll` created (auto-deploys from `main`), live at poll.ellenial.app. Waiting for Ellen's live test with real phones (the workspace can't reach Supabase). Not listed on ellenial.app yet. Paused by Ellen at 14:24: looks good on the phone.
+- 2026-11-07: Listed and linked on ellenial.app as Alpha. TRADEMARK.md added (the Ellenial name and logo are not covered by the code licence). Next gate: onboarding ('how it works in 3 steps', shared with Quiz and Party games) and the real-phone test.
