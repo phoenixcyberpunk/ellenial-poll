@@ -177,3 +177,4 @@ textarea.input { resize: vertical; min-height: 76px; }
 
 /* "?" help (shared ellenial-help.css does the rest) */
 .bar-right { display: flex; align-items: center; gap: 8px; flex: none; }
+.chip-btn { min-height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--accent); background: transparent; color: var(--accent); font-size: 14px; font-weight: 700; cursor: pointer; }
