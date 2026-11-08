@@ -23,7 +23,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 
 ## Help "?" (8 Nov 2026)
 - Shared `ellenial-help.js` + `.css` copied unchanged from ellenial-bingo. "?" sits top-right on every screen (`topBar` adds it), opens "How it works" in 3 steps. Replaced the old "How this works" link; `howView` (the privacy page) is now the sheet's "More about privacy" link, offered only when no room is running so the host is never pulled out of a live poll.
-- Ellen (8 Nov): every Ellenial app must be in English and Swedish. Poll is English-only for now; `HELP.sv` is ready for the language switch (a later task). Ellen will change the results rule herself; then update help step 3.
+- Ellen (8 Nov): every Ellenial app must be in English and Swedish. Poll is English-only for now; `HELP.sv` is ready for the language switch (a later task). Help step 3 updated 8 Nov to the new results rule (EN + SV).
 
 ## Brand
 - Final Ellenial brand, no exceptions: same tokens, fonts and theme switch as ellenial quiz (see its CLAUDE.md). Theme key `ep:theme-pref`. Test with `?theme=light|dark`. Copy in first person ("I").
@@ -38,9 +38,9 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 ## Open
 - Live test with real phones of the 8 Nov build.
 - App icon: Ellen has made it (8 Nov), adding it soon. Then manifest and favicon.
-- Pentest along with the other apps (public broadcast channel is encrypted but floodable).
+- Pentest along with the other apps (public broadcast channel is encrypted but floodable). 8 Nov: host broadcasts are now coalesced (`queueState`, max one per 500 ms) so phones can't make the host flood the shared Supabase project. Still open: anyone with the link can add fake phones up to the 300 cap (honour-based, said openly).
 
 ## Status
 - 2026-11-03: v1 built and tested locally (Playwright, see Testing), pushed to `main`, Vercel project `ellenial-poll` created (auto-deploys from `main`), live at poll.ellenial.app. Waiting for Ellen's live test with real phones (the workspace can't reach Supabase). Not listed on ellenial.app yet. Paused by Ellen at 14:24: looks good on the phone.
 - 2026-11-07: Listed and linked on ellenial.app as Alpha. TRADEMARK.md added (the Ellenial name and logo are not covered by the code licence). Next gate: onboarding ('how it works in 3 steps', shared with Quiz and Party games) and the real-phone test.
-- 2026-11-08: Ellen approved mock-ups 5 and 6. Built and deployed: Poll rules card (change vote, hide until close) on Make a poll, fixed hidden line on the host view, changeable votes, the 4 Nov results rule, explainer point 3 and the trimmed results note. Ship check run the same day.
+- 2026-11-08: Ellen approved mock-ups 5 and 6. Built and deployed: Poll rules card (change vote, hide until close) on Make a poll, fixed hidden line on the host view, changeable votes, the 4 Nov results rule, explainer point 3 and the trimmed results note. Ship check (beta gate) run the same day: see the claude.ai Project notes.

@@ -340,7 +340,7 @@
     var known = room.seen[msg.pid] !== undefined;
     if (!known && Object.keys(room.seen).length >= LIMITS.phones) return;
     room.seen[msg.pid] = Date.now();
-    if (msg.t === 'hello') { if (!known) { broadcastState(); renderTurnout(); } return; }
+    if (msg.t === 'hello') { if (!known) { queueState(); renderTurnout(); } return; }
     if (msg.t === 'vote' && room.phase === 'open') {
       // Still one vote per phone. A changed vote (only if the host allowed it) replaces the old one;
       // n counts the phone's versions so a late resend of an old vote can't undo a newer one.
@@ -351,8 +351,16 @@
       if (v === null) return;
       room.votes[msg.pid] = v;   // in memory only, gone when this tab closes
       room.vn[msg.pid] = n;
-      broadcastState(); renderTurnout(); renderLiveResults();
+      queueState(); renderTurnout(); renderLiveResults();
     }
+  }
+  // Phones can make the host speak (a new phone, a vote, a changed vote). Coalesce those into at most
+  // one broadcast per STATE_GAP, so a phone spamming messages can't make the host flood the shared
+  // Supabase project. Closing the poll still broadcasts at once.
+  var STATE_GAP = 500;
+  function queueState() {
+    if (!room || room.stateQueued) return;
+    room.stateQueued = setTimeout(function () { if (room) { room.stateQueued = null; broadcastState(); } }, STATE_GAP);
   }
   function broadcastState() {
     if (!room || room.role !== 'host' || !room.conn) return;
