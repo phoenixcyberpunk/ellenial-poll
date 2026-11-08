@@ -188,3 +188,6 @@ textarea.input { resize: vertical; min-height: 76px; }
 .save-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .save-grid .btn { padding-left: 8px; padding-right: 8px; gap: 8px; }
 .final-card { gap: 12px; }
+
+/* "Ellenial" above the app's name (decided 8 Nov 2026): credit where credit is due, without making the name longer. */
+.ellenial-eyebrow { display: block; font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; line-height: 14px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--muted); margin: 0 0 2px; }
