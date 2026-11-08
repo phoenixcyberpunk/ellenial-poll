@@ -1,6 +1,6 @@
 # ellenial poll — Project Guide
 
-Read this first in every session. English-language poll app under **Ellenial**. Project notes and decisions also live in the claude.ai Project "Ellenial Poll" (`claude/ellenial-poll-project.md`). Approved mock-ups: https://claude.ai/artifact/GHvJP1rQrt6BtwVLBR7qm2
+Read this first in every session. Poll app under **Ellenial**, English and Swedish. Project notes and decisions also live in the claude.ai Project "Ellenial Poll" (`claude/ellenial-poll-project.md`). Approved mock-ups: https://claude.ai/artifact/GHvJP1rQrt6BtwVLBR7qm2
 
 ## Infrastructure
 - **Code:** GitHub `phoenixcyberpunk/ellenial-poll` (public, AGPL-3.0).
@@ -23,7 +23,13 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 
 ## Help "?" (8 Nov 2026)
 - Shared `ellenial-help.js` + `.css` copied unchanged from ellenial-bingo. "?" sits top-right on every screen (`topBar` adds it), opens "How it works" in 3 steps. Replaced the old "How this works" link; `howView` (the privacy page) is now the sheet's "More about privacy" link, offered only when no room is running so the host is never pulled out of a live poll.
-- Ellen (8 Nov): every Ellenial app must be in English and Swedish. Poll is English-only for now; `HELP.sv` is ready for the language switch (a later task). Help step 3 updated 8 Nov to the new results rule (EN + SV).
+- Ellen (8 Nov): every Ellenial app must be in English and Swedish. Help step 3 updated 8 Nov to the new results rule (EN + SV).
+
+## Languages (8 Nov 2026)
+- Every word on screen lives in the `T` table (`en`, `sv`); `t()` gives the current one. Nothing user-facing outside it.
+- Same pattern as ellenial bingo: the saved choice (`ep:lang`) wins, else the phone's language (sv/nb/nn/no/da → Swedish, else English). A "Svenska" / "English" pill sits top-right next to the "?" (`langButton`), on every screen except the host's live and results screens.
+- Each phone has its own language. The poll's own words are set by the host when it opens: yes / no / maybe becomes Ja / Nej / Kanske in a Swedish host's poll, and stays so for every phone.
+- Swedish uses "värd" for host and "omröstning" for poll.
 
 ## Brand
 - Final Ellenial brand, no exceptions: same tokens, fonts and theme switch as ellenial quiz (see its CLAUDE.md). Theme key `ep:theme-pref`. Test with `?theme=light|dark`. Copy in first person ("I").
@@ -31,6 +37,7 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 
 ## Testing
 - Local: serve with `/join` rewritten to `index.html`, open with `?local`. Each phone needs its own localStorage for its own pid (in Playwright: clear localStorage per page).
+- 8 Nov 2026 (Swedish): Playwright with a Swedish-language phone, dark and light: opens in Swedish by itself, switching keeps a typed question, no switch on the live host screen, Ja/Nej/Kanske reach every phone, an English phone in a Swedish poll sees English screens, a phone can switch mid-poll, Swedish results. All passed.
 - 8 Nov 2026: Playwright (`/usr/bin/google-chrome`), dark and light: 6 phones pick-one with change on (live shares from 5, a changed vote moves the shares, old pick pre-selected), 3 phones yes/no/maybe with change off and hide on (fixed hidden line, "Votes are final", no change button, shares at close), 0 votes ("No votes came in"), 2 phones with a change (nothing moves while open, shares at close). All passed; only the missing favicon 404.
 - 3 Nov 2026: Playwright, 6 phones (pick one) and 3 phones (yes/no/maybe), dark and light: turnout steps, shares at 6 votes, top pick only at 3, phone results after close, end closes phones. No console errors except the missing favicon.
 - The workspace cannot reach supabase.co: live tests happen in Ellen's browser.
