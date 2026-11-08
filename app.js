@@ -55,6 +55,10 @@
       closed: 'Poll closed', results: 'Results · ', sharesNote: 'Shares only, never names or counts.',
       saveImage: 'Save as image on my phone', end: 'End poll and close the room', endNote: 'When the room closes, everything in it is gone.',
       imgTitle: 'Poll results', imgFoot: 'poll.ellenial.app · no names, nothing saved', imgFile: 'poll-results.png',
+      keep: 'Keep the result', asPic: 'As a picture', asPdf: 'As a PDF', saveNote: 'Saved only on your phone. Nothing is sent anywhere.',
+      endedKept: 'The host closed the room. The result stays here until you leave this page. It isn’t saved anywhere.',
+      pdfKicker: 'Poll results', pdfFoot: 'A quick poll, shown in shares', pdfFile: 'poll-results.pdf', locale: 'en-GB',
+      done: ['nobody voted', 'a few voted', 'about half the room voted', 'most voted', 'almost everyone voted'],
       ended: 'The poll has ended', endedText: 'The room is closed and everything in it is gone. Thanks for voting.',
       joining: 'Joining the poll…', joiningNote: 'If nothing happens, check that the host’s screen is still open.',
       canChange: '✓ You can change your vote', final: 'Votes are final',
@@ -107,6 +111,10 @@
       closed: 'Omröstningen är stängd', results: 'Resultat · ', sharesNote: 'Bara andelar, aldrig namn eller antal.',
       saveImage: 'Spara som bild på min telefon', end: 'Avsluta och stäng rummet', endNote: 'När rummet stängs är allt i det borta.',
       imgTitle: 'Resultat', imgFoot: 'poll.ellenial.app · inga namn, inget sparas', imgFile: 'omrostning-resultat.png',
+      keep: 'Spara resultatet', asPic: 'Som bild', asPdf: 'Som PDF', saveNote: 'Sparas bara på din telefon. Inget skickas någonstans.',
+      endedKept: 'Värden har stängt rummet. Resultatet ligger kvar här tills du lämnar sidan. Det sparas ingenstans.',
+      pdfKicker: 'Resultat', pdfFoot: 'En snabb omröstning, visad i andelar', pdfFile: 'omrostning-resultat.pdf', locale: 'sv-SE',
+      done: ['ingen röstade', 'några röstade', 'ungefär halva rummet röstade', 'de flesta röstade', 'nästan alla röstade'],
       ended: 'Omröstningen är avslutad', endedText: 'Rummet är stängt och allt i det är borta. Tack för att du röstade.',
       joining: 'Går med i omröstningen…', joiningNote: 'Om inget händer, kolla att värdens skärm fortfarande är öppen.',
       canChange: '✓ Du kan ändra din röst', final: 'Rösterna går inte att ändra',
@@ -175,6 +183,8 @@
     x: '<path d="M6 6l12 12M18 6L6 18"/>',
     copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
     save: '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+    file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     eyeOff: '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.2A9.8 9.8 0 0 1 12 5c5 0 9 5 9 7a10.6 10.6 0 0 1-2.4 3.2M6.6 6.6C4.5 8 3 10.3 3 12c0 2 4 7 9 7a9.4 9.4 0 0 0 4.2-1"/>'
   };
@@ -472,7 +482,8 @@
       t: 'state', phase: room.phase,
       poll: { q: room.poll.q, type: room.poll.type, options: room.poll.options, change: room.poll.change },
       seen: Object.keys(room.seen), got: Object.keys(room.votes), gv: room.poll.change ? room.vn : undefined,
-      res: resultsFor(room.poll, voteList(), closed)
+      res: resultsFor(room.poll, voteList(), closed),
+      step: turnoutStep(Object.keys(room.votes).length, presentCount())
     });
   }
   function turnoutBox() {
@@ -522,6 +533,7 @@
   }
   function closePoll() {
     room.phase = 'closed';
+    room.closedAt = new Date();
     room.final = resultsFor(room.poll, voteList(), true);
     broadcastState();
     show(hostResultsView());
@@ -537,7 +549,7 @@
       resultList(room.poll, res),
       res.kind === 'shares' ? h('p', { class: 'note', text: t().sharesNote }) : null,
       h('div', { class: 'grow' }),
-      res.kind === 'shares' ? h('button', { class: 'btn ghost', onclick: function () { saveImage(room.poll, res); } }, icon('save'), t().saveImage) : null,
+      res.kind === 'shares' ? saveBlock(room.poll, res, step, room.closedAt, false) : null,
       h('button', { class: 'btn', onclick: endRoom }, t().end),
       h('p', { class: 'foot', text: t().endNote }));
   }
@@ -597,17 +609,124 @@
     });
     ctx.fillStyle = c('--muted'); ctx.font = '500 28px "DM Sans", system-ui, sans-serif';
     ctx.fillText(t().imgFoot, pad, H - pad + 20);
-    cv.toBlob(function (blob) {
-      if (!blob) return;
-      var file = new File([blob], t().imgFile, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: t().imgTitle }).catch(function () {});
-        return;
-      }
-      var url = URL.createObjectURL(blob), a = h('a', { href: url, download: t().imgFile });
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-    }, 'image/png');
+    cv.toBlob(function (blob) { if (blob) handOver(blob, t().imgFile, 'image/png'); }, 'image/png');
+  }
+  // Give a file made on this phone to the phone: the share sheet where it can (straight to Photos or
+  // Files), otherwise a download. Nothing leaves the phone any other way.
+  function handOver(blob, name, type) {
+    var file = new File([blob], name, { type: type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: t().imgTitle }).catch(function () {});
+      return;
+    }
+    var url = URL.createObjectURL(blob), a = h('a', { href: url, download: name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  function fontsReady() {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    return Promise.all([document.fonts.load('600 32px Fraunces'), document.fonts.load('500 16px "DM Sans"'), document.fonts.load('700 16px "DM Sans"')]).catch(function () {});
+  }
+
+  /* ---------------- save as PDF (mock-up 9: one A4 page on white, built like ellenial bingo's) ---------------- */
+
+  // The page is drawn on a canvas in A4 points (595 × 842) at 2.5× and placed in a hand-written PDF,
+  // the same way ellenial bingo builds its cards. White, to save ink when printed.
+  var A4W = 595.28, A4H = 841.89, PDF_SCALE = 2.5;
+  function drawPdfPage(poll, res, step, when) {
+    var cv = document.createElement('canvas'), ctx = cv.getContext('2d');
+    cv.width = Math.round(A4W * PDF_SCALE); cv.height = Math.round(A4H * PDF_SCALE);
+    ctx.scale(PDF_SCALE, PDF_SCALE);
+    var INK = '#1F1A2E', MUTED = '#575166', ACCENT = '#342E86', TRACK = '#E4E1F6', RULE = '#D9D3E6';
+    var SANS = '"DM Sans", system-ui, sans-serif', SERIF = 'Fraunces, Georgia, serif';
+    var L = 56, R = A4W - 56, Wd = R - L, y = 56;
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, A4W, A4H);
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = MUTED; ctx.font = '700 12px ' + SANS;
+    ctx.fillText(t().pdfKicker.toUpperCase(), L, y + 10);
+    var date = '';
+    try { date = when.toLocaleString(t().locale, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { date = when.toISOString().slice(0, 16).replace('T', ' '); }
+    ctx.font = '400 12px ' + SANS; ctx.textAlign = 'right'; ctx.fillText(date, R, y + 10); ctx.textAlign = 'left';
+    y += 30;
+    ctx.fillStyle = INK; ctx.font = '600 32px ' + SERIF;
+    wrap(ctx, poll.q, Wd).forEach(function (line) { y += 32; ctx.fillText(line, L, y); y += 5; });
+    y += 24;
+    ctx.fillStyle = MUTED; ctx.font = '400 13px ' + SANS;
+    var kind = (t().types[poll.type] || t().types.single).label;
+    ctx.fillText(kind + (step != null && t().done[step] ? ' · ' + t().done[step] : ''), L, y);
+    y += 18;
+    ctx.fillStyle = ACCENT; ctx.fillRect(L, y, Wd, 2);
+    y += 20;
+    var several = res.top.length > 1 && res.top.length < poll.options.length;
+    poll.options.map(function (o, i) { return { o: o, i: i, pct: res.shares[i] || 0 }; })
+      .sort(function (a, b) { return b.pct - a.pct || a.i - b.i; })
+      .forEach(function (r) {
+        var isTop = res.top.indexOf(r.i) >= 0 && res.top.length < poll.options.length;
+        var padY = isTop ? 14 : 4, hgt = padY + 18 + 8 + 12 + (isTop ? 8 + 14 : 0) + padY;
+        if (isTop) { roundRect(ctx, L, y, Wd, hgt, 14); ctx.strokeStyle = ACCENT; ctx.lineWidth = 2; ctx.stroke(); }
+        var ty = y + padY + 15;
+        ctx.fillStyle = INK; ctx.font = (isTop ? '700' : '500') + ' 16px ' + SANS;
+        ctx.fillText(ellipsis(ctx, r.o, Wd - 32 - 70), L + 16, ty);
+        ctx.font = '600 22px ' + SERIF; ctx.textAlign = 'right'; ctx.fillText(r.pct + '%', R - 16, ty + 2); ctx.textAlign = 'left';
+        var by = y + padY + 18 + 8;
+        roundRect(ctx, L + 16, by, Wd - 32, 12, 6); ctx.fillStyle = TRACK; ctx.fill();
+        if (r.pct > 0) { roundRect(ctx, L + 16, by, Math.max(12, (Wd - 32) * r.pct / 100), 12, 6); ctx.fillStyle = ACCENT; ctx.fill(); }
+        if (isTop) { ctx.fillStyle = ACCENT; ctx.font = '700 12px ' + SANS; ctx.fillText(several ? t().sharedTop : t().mostPicked, L + 16, by + 12 + 8 + 11); }
+        y += hgt + 14;
+      });
+    var fy = A4H - 44;
+    ctx.fillStyle = RULE; ctx.fillRect(L, fy - 22, Wd, 1);
+    ctx.fillStyle = MUTED; ctx.font = '400 11px ' + SANS;
+    ctx.fillText(t().pdfFoot, L, fy);
+    ctx.textAlign = 'right'; ctx.fillText('poll.ellenial.app', R, fy); ctx.textAlign = 'left';
+    return cv;
+  }
+  function jpegBytes(cv) {
+    var data = cv.toDataURL('image/jpeg', 0.92).split(',')[1], bin = atob(data), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function pdfString(str) {
+    return '(' + str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7e]/g, '').replace(/([()\\])/g, '\\$1') + ')';
+  }
+  // One page, one image, no library: the same hand-written PDF as ellenial bingo, trimmed to a single page.
+  function buildPdf(img, pxW, pxH, title) {
+    var enc = new TextEncoder(), parts = [], len = 0, offsets = [];
+    function push(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
+    function obj(id, body) { offsets[id] = len; push(id + ' 0 obj\n'); if (typeof body === 'string') push(body); else body(); push('\nendobj\n'); }
+    push('%PDF-1.4\n%~~~~\n');
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Count 1 /Kids [4 0 R] >>');
+    obj(3, '<< /Title ' + pdfString(title) + ' /Producer (ellenial poll, poll.ellenial.app) /Creator (ellenial poll) >>');
+    obj(4, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + A4W + ' ' + A4H + '] /Resources << /XObject << /P0 6 0 R >> >> /Contents 5 0 R >>');
+    var c = 'q ' + A4W + ' 0 0 ' + A4H + ' 0 0 cm /P0 Do Q\n';
+    obj(5, '<< /Length ' + enc.encode(c).length + ' >>\nstream\n' + c + 'endstream');
+    obj(6, function () {
+      push('<< /Type /XObject /Subtype /Image /Width ' + pxW + ' /Height ' + pxH + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + img.length + ' >>\nstream\n');
+      push(img); push('\nendstream');
+    });
+    var xref = len, x2 = 'xref\n0 7\n0000000000 65535 f \n';
+    for (var i = 1; i < 7; i++) x2 += String(offsets[i]).padStart(10, '0') + ' 00000 n \n';
+    push(x2 + 'trailer\n<< /Size 7 /Root 1 0 R /Info 3 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+    return new Blob(parts, { type: 'application/pdf' });
+  }
+  function savePdf(poll, res, step, when) {
+    fontsReady().then(function () {
+      var cv = drawPdfPage(poll, res, step, when || new Date());
+      handOver(buildPdf(jpegBytes(cv), cv.width, cv.height, poll.q), t().pdfFile, 'application/pdf');
+    });
+  }
+  // "Keep the result": a picture or a PDF, both made here and saved only on this phone (mock-ups 7 and 8).
+  function saveBlock(poll, res, step, when, withNote) {
+    return h('div', { class: 'stack save-block' },
+      h('span', { class: 'save-label', text: t().keep }),
+      h('div', { class: 'save-grid' },
+        h('button', { class: 'btn ghost', id: 'save-pic', onclick: function () { fontsReady().then(function () { saveImage(poll, res); }); } }, icon('image'), t().asPic),
+        h('button', { class: 'btn ghost', id: 'save-pdf', onclick: function () { savePdf(poll, res, step, when); } }, icon('file'), t().asPdf)),
+      withNote ? h('div', { class: 'privacy' }, icon('lock'), h('span', { text: t().saveNote })) : null);
+  }
+  function validShares(poll, res) {
+    return !!(res && res.kind === 'shares' && Array.isArray(res.shares) && Array.isArray(res.top) && res.shares.length === poll.options.length);
   }
   function wrap(ctx, text, max) {
     var words = text.split(' '), lines = [], line = '';
@@ -666,9 +785,11 @@
     var first = !room.state, wasPhase = room.state && room.state.phase;
     msg.poll.q = clean(msg.poll.q, LIMITS.question);
     msg.poll.options = msg.poll.options.slice(0, LIMITS.options).map(function (o) { return clean(o, LIMITS.option); });
+    if (msg.phase === 'closed' && !room.closedAt) room.closedAt = new Date();
     room.state = msg;
     room.acked = msg.seen.indexOf(room.pid) >= 0;
     if (voteMissing(msg)) sendVote();
+    if (msg.phase === 'closed' && wasPhase === 'closed') return;   // the result is final: keep the screen still
     if (first || wasPhase !== msg.phase || !document.getElementById('vote-form')) renderPhone();
   }
   function renderPhone() {
@@ -676,10 +797,19 @@
     var s = room.state;
     var bar = topBar(wordmark(), h('span', { class: 'chip', text: t().room + roomName(room.roomId) }));
     if (room.ended) {
-      return show(h('div', { class: 'page' }, bar,
-        h('h1', { class: 'q', tabindex: '-1', 'data-focus': true }, t().ended),
-        h('p', { class: 'muted', style: 'margin:0', text: t().endedText }),
-        h('div', { class: 'grow' }), signature()));
+      // Mock-up 8: the final result stays on this phone (in memory only) until they leave the page.
+      var kept = s && s.phase === 'closed' && validShares(s.poll, s.res);
+      return show(h('div', { class: 'page' }, topBar(wordmark()),
+        h('div', { class: 'stack', style: 'gap:8px' },
+          h('h1', { class: 'q', tabindex: '-1', 'data-focus': true }, t().ended),
+          h('p', { class: 'muted', style: 'margin:0', text: kept ? t().endedKept : t().endedText })),
+        kept ? h('section', { class: 'card stack final-card', 'aria-labelledby': 'final-q' },
+          h('h2', { class: 'q small', id: 'final-q', style: 'margin:0;font-family:var(--display);font-weight:600', text: s.poll.q }),
+          resultList(s.poll, s.res)) : null,
+        h('div', { class: 'grow' }),
+        kept ? saveBlock(s.poll, s.res, s.step, room.closedAt, false) : null,
+        h('a', { class: 'btn link', href: '/', style: 'align-self:center' }, t().ownPoll),
+        signature()));
     }
     if (!s) {
       return show(h('div', { class: 'page' }, bar,
@@ -690,11 +820,15 @@
     }
     var hint = (t().types[s.poll.type] || t().types.single).hint;
     if (s.phase === 'closed') {
+      var canSave = validShares(s.poll, s.res);
+      var doneWords = typeof s.step === 'number' && t().done[s.step] && canSave ? ' · ' + t().done[s.step] : '';
       return show(h('div', { class: 'page' }, bar,
-        h('div', { class: 'stack', style: 'gap:8px' }, h('p', { class: 'kicker' }, t().closed),
+        h('div', { class: 'stack', style: 'gap:8px' }, h('p', { class: 'kicker', text: t().closed + doneWords }),
           h('h1', { class: 'q', tabindex: '-1', 'data-focus': true, text: s.poll.q })),
         resultList(s.poll, s.res || { kind: 'few' }),
-        h('div', { class: 'grow' }), privacyLine(true, openHow)));
+        canSave ? h('p', { class: 'note', text: t().sharesNote }) : null,
+        h('div', { class: 'grow' }),
+        canSave ? saveBlock(s.poll, s.res, s.step, room.closedAt, true) : privacyLine(true, openHow)));
     }
     var changeable = s.poll.change === true;
     var ruleChip = h('div', { class: 'chips' }, h('span', { class: 'chip outline', text: changeable ? t().canChange : t().final }));

@@ -13,7 +13,8 @@ Part of [Ellenial](https://ellenial.app): free tools made by people, for people.
 - **Nobody sees a vote move.** While the poll is open, shares only show once 5 people have voted, so nobody can match a bar jump to whoever just tapped. When the host closes, the shares show however few voted: in a small group you can see for yourselves how few you are. The host can also choose to hide results until they close.
 - **Turnout, never counts.** The host sees a five-step bar with plain words ("A few have voted", "About half the room"…), as a share of the phones in the room.
 - **One vote per phone, on trust.** The phone remembers that it voted (localStorage). If the host allowed it when making the poll, people can change their vote until it closes; the new vote replaces the old one. Someone could cheat with another browser; I'd rather trust you than track you.
-- When the host ends the poll or closes the tab, everything is gone. The host can save the result as an image on their own phone first.
+- When the host ends the poll or closes the tab, everything is gone. Anyone in the room can keep the result first, as a picture or a one-page PDF, made on their own phone and saved only there. Phones keep showing the final result until they leave the page.
+- **English and Swedish.** Each phone picks its own language (the phone's setting first, then a Svenska / English switch).
 
 ## How it works
 
