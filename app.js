@@ -30,7 +30,8 @@
       hidden: 'Results are hidden', hiddenText: 'They show when the host closes the poll.',
       waiting: function (n) { return 'Results show from ' + n + ' votes'; }, waitingText: 'So no one can work out who picked what.',
       connected: 'Connected', connecting: 'Connecting…',
-      privacy: 'No names, ever. Your vote passes through to the host’s screen and is never saved. ', howLink: 'How this works',
+      privacy: 'No names, ever. Your vote passes through to the host’s screen and is never saved. ',
+      hostPrivacy: 'Anonymous voting: as host you only see the result as shares. The poll and its result disappear when you close the room.', howLink: 'How this works',
       madeBy: 'Made by me, with the help of AI · ', anApp: 'An Ellenial app',
       back: 'Back', appearance: 'Appearance', themes: { auto: 'Auto', light: 'Light', dark: 'Dark' },
       howTitle: 'How this works', howLead: 'I built this so a room can decide something quickly, without anyone handing over their name or data.',
@@ -86,7 +87,8 @@
       hidden: 'Resultatet är dolt', hiddenText: 'Det visas när värden stänger omröstningen.',
       waiting: function (n) { return 'Resultatet visas från ' + n + ' röster'; }, waitingText: 'Så att ingen kan räkna ut vem som valde vad.',
       connected: 'Ansluten', connecting: 'Ansluter…',
-      privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ', howLink: 'Så funkar det',
+      privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ',
+      hostPrivacy: 'Anonym omröstning: som värd ser du bara resultatet i andelar. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
       madeBy: 'Gjord av mig, med hjälp av AI · ', anApp: 'En Ellenial-app',
       back: 'Tillbaka', appearance: 'Utseende', themes: { auto: 'Auto', light: 'Ljust', dark: 'Mörkt' },
       howTitle: 'Så funkar det', howLead: 'Jag byggde det här så att ett rum snabbt kan bestämma något, utan att någon behöver lämna ut sitt namn eller sina uppgifter.',
@@ -310,9 +312,10 @@
   function backButton(onBack) {
     return h('button', { class: 'round', 'aria-label': t().back, onclick: onBack }, icon('back', 22));
   }
-  function privacyLine(withLink, onHow) {
+  function privacyLine(withLink, onHow, forHost) {
+    // The host's own screen says what the host can see (Ellen, 8 Nov); phones keep the voter's promise.
     return h('div', { class: 'privacy' }, icon('lock'),
-      h('span', null, t().privacy,
+      h('span', null, forHost ? t().hostPrivacy : t().privacy,
         withLink ? h('button', { class: 'btn link', style: 'min-height:auto;padding:0;font-size:inherit', onclick: onHow }, t().howLink) : null));
   }
   function signature() {
@@ -406,7 +409,7 @@
         ruleBox(t().hideRule, t().hideHint, 'hide')),
       error ? h('p', { class: 'error', role: 'alert', text: error }) : null,
       h('button', { class: 'btn', onclick: startPoll }, t().open),
-      privacyLine(false),
+      privacyLine(false, null, true),
       h('div', { class: 'grow' }),
       h('div', { class: 'theme-row' }, themeSwitch()),
       signature());
