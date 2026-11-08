@@ -13,8 +13,7 @@
     origin: 'https://poll.ellenial.app'
   };
   var LIMITS = { question: 160, option: 80, options: 8, phones: 300 };
-  var MIN_SHARES = 5;      // below this, never show shares (small groups stay private)
-  var MIN_TOP = 2;         // 2–4 votes at close: show only the top pick
+  var MIN_SHARES = 5;      // while open, live shares only from this many votes (nobody can match a bar jump to a tap)
   var STEP_WORDS = ['Waiting for the first votes', 'A few have voted', 'About half the room', 'Most have voted', 'Almost everyone'];
   var STEP_FILL = [0, 1, 3, 4, 5];
   var TYPES = {
@@ -60,7 +59,8 @@
     x: '<path d="M6 6l12 12M18 6L6 18"/>',
     copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
     save: '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    eyeOff: '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.2A9.8 9.8 0 0 1 12 5c5 0 9 5 9 7a10.6 10.6 0 0 1-2.4 3.2M6.6 6.6C4.5 8 3 10.3 3 12c0 2 4 7 9 7a9.4 9.4 0 0 0 4.2-1"/>'
   };
   function icon(name, size) {
     var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -128,20 +128,20 @@
   /* ---------------- results: the privacy rules live here, and only here ---------------- */
 
   // What anyone may see, given the votes. Never counts, never who.
-  //   >= 5 votes: shares (rounded %)        2–4 votes at close: only the top pick
-  //   fewer: nothing                        while open and hidden by the host: nothing
+  //   At close: shares (rounded %), however few voted (Ellen, 4 Nov: people can see they're too few
+  //             to be anonymous). No votes at all: nothing.
+  //   While open: shares only from MIN_SHARES votes, so nobody can match a bar jump (or a changed
+  //             vote) to whoever just tapped; nothing at all if the host chose to hide results.
   function resultsFor(poll, votes, closed) {
     var n = votes.length;
     var tally = poll.options.map(function () { return 0; });
     votes.forEach(function (v) { (Array.isArray(v) ? v : [v]).forEach(function (i) { tally[i]++; }); });
     var max = Math.max.apply(null, tally);
     var top = max > 0 ? tally.map(function (c, i) { return c === max ? i : -1; }).filter(function (i) { return i >= 0; }) : [];
-    if (n >= MIN_SHARES && (closed || !poll.hide)) {
-      return { kind: 'shares', shares: tally.map(function (c) { return Math.round((c / n) * 100); }), top: top };
-    }
-    if (closed && n >= MIN_TOP) return { kind: 'top', top: top };
-    if (closed) return { kind: 'few' };
-    return { kind: poll.hide ? 'hidden' : 'waiting' };
+    var shares = function () { return { kind: 'shares', shares: tally.map(function (c) { return Math.round((c / n) * 100); }), top: top }; };
+    if (closed) return n ? shares() : { kind: 'none' };
+    if (poll.hide) return { kind: 'hidden' };
+    return n >= MIN_SHARES ? shares() : { kind: 'waiting' };
   }
   function turnoutStep(votedCount, present) {
     if (!votedCount) return 0;
@@ -214,15 +214,7 @@
             isTop ? h('span', { class: 'top-tag' }, res.top.length > 1 ? '✓ Shared top pick' : '✓ Most picked') : null);
         }));
     }
-    if (res.kind === 'top') {
-      return h('div', { class: 'stack' },
-        h('ol', { class: 'results' }, res.top.map(function (i) {
-          return h('li', { class: 'res top' }, h('div', { class: 'res-head' }, h('span', { class: 'txt', text: poll.options[i] })),
-            h('span', { class: 'top-tag' }, res.top.length > 1 ? '✓ Shared top pick' : '✓ Most picked'));
-        })),
-        h('p', { class: 'note', text: 'Only a few people voted, so I only show the top pick, not the shares.' }));
-    }
-    if (res.kind === 'few') return waitingBox('Too few votes to show a result', 'With fewer than 2 votes, any result would show what someone picked.');
+    if (res.kind === 'none' || res.kind === 'few' || res.kind === 'top') return waitingBox('No votes came in', 'Nobody voted before the poll closed.');
     if (res.kind === 'hidden') return waitingBox('Results are hidden', 'They show when the host closes the poll.');
     return waitingBox('Results show from ' + MIN_SHARES + ' votes', 'So no one can work out who picked what.');
   }
@@ -239,7 +231,7 @@
     var points = [
       ['No names, no accounts', 'You join with a link or a QR code. Nobody, me included, can see who voted for what.'],
       ['Votes pass through, never saved', 'Your vote travels encrypted to the host’s screen and is never written down anywhere. When the room closes, it’s gone.'],
-      ['Small groups stay private', 'Shares only show once ' + MIN_SHARES + ' people have voted. With 2–4 votes the host only sees the top pick.'],
+      ['Nobody sees a vote move', 'While the poll is open, results only show once ' + MIN_SHARES + ' people have voted. In a small group, the final result can still show who’s who: you’ll see how few you are.'],
       ['One vote per phone, on trust', 'Your phone remembers that it voted. Someone could cheat with another browser; I’d rather trust you than track you.'],
       ['Free and open', 'No ads, no trackers, no paywall. The code is public for anyone to check.']
     ];
@@ -259,7 +251,13 @@
 
   /* ---------------- host: create ---------------- */
 
-  var draft = { type: 'single', question: '', options: ['', ''], hide: false };
+  function freshDraft() { return { type: 'single', question: '', options: ['', ''], change: true, hide: false }; }
+  var draft = freshDraft();
+  function ruleBox(label, hint, key) {
+    return h('label', { class: 'rule' },
+      h('input', { type: 'checkbox', checked: draft[key], onchange: function (e) { draft[key] = e.target.checked; } }),
+      h('span', { class: 'rule-text' }, h('span', { class: 'rule-label', text: label }), h('span', { class: 'note', text: hint })));
+  }
 
   function createView(error) {
     function opts() {
@@ -288,8 +286,11 @@
           return h('button', { type: 'button', 'aria-pressed': String(draft.type === t), onclick: function () { draft.type = t; show(createView()); } }, TYPES[t].label);
         }))),
       opts(),
-      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: draft.hide, onchange: function (e) { draft.hide = e.target.checked; } }),
-        h('span', { text: 'Hide results until I close' })),
+      h('section', { class: 'card rules', 'aria-labelledby': 'rules-h' },
+        h('h2', { class: 'label', id: 'rules-h', text: 'Poll rules' }),
+        ruleBox('Let people change their vote', 'Until I close the poll. Still one vote per phone.', 'change'),
+        h('div', { class: 'rule-line', 'aria-hidden': 'true' }),
+        ruleBox('Hide results until I close', 'People see the shares only after I close.', 'hide')),
       error ? h('p', { class: 'error', role: 'alert', text: error }) : null,
       h('button', { class: 'btn', onclick: startPoll }, 'Open the poll'),
       privacyLine(false),
@@ -307,8 +308,8 @@
     var fresh = R.newRoom(), roomId = fresh.roomId, secret = fresh.secret;
     room = {
       role: 'host', roomId: roomId, secret: secret, link: joinLink(roomId, secret), online: false,
-      poll: { q: question, type: draft.type, options: options, hide: draft.hide },
-      votes: {}, seen: {}, phase: 'open', timer: null
+      poll: { q: question, type: draft.type, options: options, change: !!draft.change, hide: !!draft.hide },
+      votes: {}, vn: {}, seen: {}, phase: 'open', timer: null
     };
     room.conn = connect(roomId, secret, hostOnMessage, function (ok) { room.online = ok; renderHost(); if (ok) broadcastState(); });
     room.timer = setInterval(function () { broadcastState(); renderTurnout(); }, STATE_MS);
@@ -340,10 +341,16 @@
     if (!known && Object.keys(room.seen).length >= LIMITS.phones) return;
     room.seen[msg.pid] = Date.now();
     if (msg.t === 'hello') { if (!known) { broadcastState(); renderTurnout(); } return; }
-    if (msg.t === 'vote' && room.phase === 'open' && room.votes[msg.pid] === undefined) {
+    if (msg.t === 'vote' && room.phase === 'open') {
+      // Still one vote per phone. A changed vote (only if the host allowed it) replaces the old one;
+      // n counts the phone's versions so a late resend of an old vote can't undo a newer one.
+      var n = typeof msg.n === 'number' && Math.floor(msg.n) === msg.n && msg.n > 0 && msg.n < 1000 ? msg.n : 1;
+      var had = room.votes[msg.pid] !== undefined;
+      if (had && (!room.poll.change || n <= (room.vn[msg.pid] || 1))) return;
       var v = validVote(msg.a);
       if (v === null) return;
       room.votes[msg.pid] = v;   // in memory only, gone when this tab closes
+      room.vn[msg.pid] = n;
       broadcastState(); renderTurnout(); renderLiveResults();
     }
   }
@@ -352,8 +359,8 @@
     var closed = room.phase === 'closed';
     room.conn.send({
       t: 'state', phase: room.phase,
-      poll: { q: room.poll.q, type: room.poll.type, options: room.poll.options },
-      seen: Object.keys(room.seen), got: Object.keys(room.votes),
+      poll: { q: room.poll.q, type: room.poll.type, options: room.poll.options, change: room.poll.change },
+      seen: Object.keys(room.seen), got: Object.keys(room.votes), gv: room.poll.change ? room.vn : undefined,
       res: resultsFor(room.poll, voteList(), closed)
     });
   }
@@ -395,10 +402,9 @@
           } }, icon('copy'), h('span', { text: 'Copy the link' })),
           statusLine(room.online))),
       turnoutBox(),
-      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: room.poll.hide, onchange: function (e) {
-        room.poll.hide = e.target.checked; broadcastState(); renderLiveResults();
-      } }), h('span', { text: 'Hide results until I close' })),
-      h('div', { id: 'live' }, resultList(room.poll, resultsFor(room.poll, voteList(), false))),
+      room.poll.hide
+        ? h('div', { class: 'fixed-rule' }, icon('eyeOff', 20), h('span', { text: 'Results hidden until I close' }))
+        : h('div', { id: 'live' }, resultList(room.poll, resultsFor(room.poll, voteList(), false))),
       h('div', { class: 'grow' }),
       h('button', { class: 'btn', onclick: closePoll }, 'Close poll and show results'));
     show(view);
@@ -418,9 +424,9 @@
         h('p', { class: 'kicker', text: 'Results · ' + STEP_WORDS[step].toLowerCase() }),
         h('h1', { class: 'q', tabindex: '-1', 'data-focus': true, text: room.poll.q })),
       resultList(room.poll, res),
-      res.kind === 'shares' ? h('p', { class: 'note', text: 'Shares only, never names or counts. With fewer than ' + MIN_SHARES + ' votes, results stay hidden.' }) : null,
+      res.kind === 'shares' ? h('p', { class: 'note', text: 'Shares only, never names or counts.' }) : null,
       h('div', { class: 'grow' }),
-      res.kind === 'shares' || res.kind === 'top' ? h('button', { class: 'btn ghost', onclick: function () { saveImage(room.poll, res); } }, icon('save'), 'Save as image on my phone') : null,
+      res.kind === 'shares' ? h('button', { class: 'btn ghost', onclick: function () { saveImage(room.poll, res); } }, icon('save'), 'Save as image on my phone') : null,
       h('button', { class: 'btn', onclick: endRoom }, 'End poll and close the room'),
       h('p', { class: 'foot', text: 'When the room closes, everything in it is gone.' }));
   }
@@ -431,7 +437,7 @@
     }
     if (room && room.timer) clearInterval(room.timer);
     room = null;
-    draft = { type: 'single', question: '', options: ['', ''], hide: false };
+    draft = freshDraft();
     history.replaceState(null, '', location.pathname + location.search);
     show(createView());
   }
@@ -519,19 +525,29 @@
     if (typeof pid !== 'string' || !/^[A-Za-z0-9_-]{16}$/.test(pid)) { pid = randomB64u(12); store(pidKey, pid); }
     room = {
       role: 'phone', roomId: ref.roomId, secret: ref.secret, pid: pid, online: false,
-      state: null, myVote: store('ep:voted:' + ref.roomId), pick: [], acked: false, ended: false
+      state: null, myVote: store('ep:voted:' + ref.roomId), pick: [], acked: false, ended: false, editing: false
     };
+    var n = store('ep:vn:' + ref.roomId);
+    room.myN = room.myVote === null ? 0 : (typeof n === 'number' && n > 0 ? n : 1);
     room.conn = connect(ref.roomId, ref.secret, phoneOnMessage, function (ok) { room.online = ok; if (ok) hello(); renderPhone(); });
     function hello() {
       if (!room || room.role !== 'phone' || room.ended) return;
       room.conn.send({ t: 'hello', pid: room.pid });
-      if (room.myVote !== null && room.state && room.state.phase === 'open' && room.state.got.indexOf(room.pid) < 0) room.conn.send({ t: 'vote', pid: room.pid, a: room.myVote });
+      if (room.state && voteMissing(room.state)) sendVote();
       clearTimeout(room.helloTimer);
       room.helloTimer = setTimeout(hello, room.acked ? HELLO_SLOW : HELLO_FAST);
     }
     room.hello = hello;
     renderPhone();
   }
+  // Has the host got this phone's latest vote? If not, send it again.
+  function voteMissing(s) {
+    if (room.myVote === null || s.phase !== 'open') return false;
+    if (s.got.indexOf(room.pid) < 0) return true;
+    return !!(s.gv && typeof s.gv === 'object' && (Number(s.gv[room.pid]) || 1) < room.myN);
+  }
+  function voteArrived(s) { return s.got.indexOf(room.pid) >= 0 && !voteMissing(s); }
+  function sendVote() { room.conn.send({ t: 'vote', pid: room.pid, a: room.myVote, n: room.myN }); }
   function phoneOnMessage(msg) {
     if (!room || room.role !== 'phone' || !msg) return;
     if (msg.t === 'end') { room.ended = true; clearTimeout(room.helloTimer); room.conn.close(); return renderPhone(); }
@@ -541,7 +557,7 @@
     msg.poll.options = msg.poll.options.slice(0, LIMITS.options).map(function (o) { return clean(o, LIMITS.option); });
     room.state = msg;
     room.acked = msg.seen.indexOf(room.pid) >= 0;
-    if (room.myVote !== null && msg.phase === 'open' && msg.got.indexOf(room.pid) < 0) room.conn.send({ t: 'vote', pid: room.pid, a: room.myVote });
+    if (voteMissing(msg)) sendVote();
     if (first || wasPhase !== msg.phase || !document.getElementById('vote-form')) renderPhone();
   }
   function renderPhone() {
@@ -569,39 +585,55 @@
         resultList(s.poll, s.res || { kind: 'few' }),
         h('div', { class: 'grow' }), privacyLine(true, openHow)));
     }
-    if (room.myVote !== null) {
-      var arrived = s.got.indexOf(room.pid) >= 0;
+    var changeable = s.poll.change === true;
+    var ruleChip = h('div', { class: 'chips' }, h('span', { class: 'chip outline', text: changeable ? '✓ You can change your vote' : 'Votes are final' }));
+    if (room.myVote !== null && !room.editing) {
+      var arrived = voteArrived(s);
+      var picked = (Array.isArray(room.myVote) ? room.myVote : [room.myVote]).map(function (i) { return s.poll.options[i]; }).filter(Boolean).join(', ');
+      var sentNote = changeable
+        ? (room.myN > 1 ? 'Your new vote replaced the old one. You can change it until the host closes the poll.' : 'You can change it until the host closes the poll.')
+        : 'Votes are final in this poll.';
       return show(h('div', { class: 'page' }, bar,
         h('div', { class: 'stack', style: 'gap:8px' }, h('p', { class: 'kicker', text: 'Your vote' }), h('h1', { class: 'q small', text: s.poll.q })),
+        ruleChip,
         h('div', { class: 'sent card', role: 'status' },
-          h('span', { class: 'big', tabindex: '-1', 'data-focus': true }, arrived ? '✓ Vote sent' : 'Sending…'),
-          h('span', { class: 'note', text: 'You picked: ' + (Array.isArray(room.myVote) ? room.myVote : [room.myVote]).map(function (i) { return s.poll.options[i]; }).join(', ') })),
+          h('span', { class: 'label', tabindex: '-1', 'data-focus': true, text: arrived ? '✓ Vote sent' : 'Sending…' }),
+          h('span', { class: 'muted', text: 'You picked' }),
+          h('span', { class: 'big', text: picked }),
+          h('span', { class: 'note', text: sentNote })),
         h('div', { id: 'phone-live' }, resultList(s.poll, s.res || { kind: 'waiting' })),
-        h('div', { class: 'grow' }), privacyLine(true, openHow)));
+        h('div', { class: 'grow' }),
+        changeable ? h('button', { class: 'btn ghost', onclick: function () { room.editing = true; renderPhone(); } }, 'Change my vote') : null,
+        privacyLine(true, openHow)));
     }
     var multi = s.poll.type === 'multi';
+    var before = room.myVote === null ? [] : (Array.isArray(room.myVote) ? room.myVote : [room.myVote]);
     var form = h('form', { class: 'stack', id: 'vote-form', onsubmit: function (e) {
       e.preventDefault();
       var picked = Array.prototype.slice.call(form.querySelectorAll('input:checked')).map(function (i) { return Number(i.value); });
       if (!picked.length) { var er = form.querySelector('.error'); er.textContent = multi ? 'Pick at least one option.' : 'Pick an option first.'; return; }
       room.myVote = multi ? picked : picked[0];
+      room.myN = (room.myN || 0) + 1;
+      room.editing = false;
       store('ep:voted:' + room.roomId, room.myVote);   // this phone only: it already voted
-      room.conn.send({ t: 'vote', pid: room.pid, a: room.myVote });
+      store('ep:vn:' + room.roomId, room.myN);
+      sendVote();
       renderPhone();
     } },
       h('fieldset', { class: 'stack', style: 'margin:0;padding:0;border:0' },
         h('legend', { class: 'sr-only', text: s.poll.q }),
         s.poll.options.map(function (o, i) {
           return h('label', { class: 'option' },
-            h('input', { type: multi ? 'checkbox' : 'radio', name: 'vote', value: String(i) }),
+            h('input', { type: multi ? 'checkbox' : 'radio', name: 'vote', value: String(i), checked: before.indexOf(i) >= 0 }),
             h('span', { class: 'txt', text: o }), h('span', { class: 'tag', text: '✓ Picked' }));
         })),
       h('p', { class: 'error', role: 'alert' }),
-      h('button', { class: 'btn', type: 'submit' }, 'Send my vote'));
+      h('button', { class: 'btn', type: 'submit' }, room.editing ? 'Send my new vote' : 'Send my vote'));
     show(h('div', { class: 'page' }, bar,
       h('div', { class: 'stack', style: 'gap:8px' },
         h('p', { class: 'kicker', text: 'Your vote · ' + hint }),
         h('h1', { class: 'q', tabindex: '-1', 'data-focus': true, text: s.poll.q })),
+      ruleChip,
       form,
       h('div', { class: 'grow' }),
       privacyLine(true, openHow)));
