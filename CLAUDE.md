@@ -20,6 +20,10 @@ Read this first in every session. English-language poll app under **Ellenial**. 
 - Host can save the result as a PNG (canvas, share sheet on phones, download elsewhere). Ending sends `end` and the room is gone.
 - Room name (4 letters from the room id) is only a visual check; joining needs the link/QR (a typed code would need a server lookup).
 
+## Help "?" (8 Nov 2026)
+- Shared `ellenial-help.js` + `.css` copied unchanged from ellenial-bingo. "?" sits top-right on every screen (`topBar` adds it), opens "How it works" in 3 steps. Replaced the old "How this works" link; `howView` (the privacy page) is now the sheet's "More about privacy" link, offered only when no room is running so the host is never pulled out of a live poll.
+- Ellen (8 Nov): every Ellenial app must be in English and Swedish. Poll is English-only for now; `HELP.sv` is ready for the language switch (a later task). Ellen will change the results rule herself; then update help step 3.
+
 ## Brand
 - Final Ellenial brand, no exceptions: same tokens, fonts and theme switch as ellenial quiz (see its CLAUDE.md). Theme key `ep:theme-pref`. Test with `?theme=light|dark`. Copy in first person ("I").
 - Accessibility: text ≥ 4.5:1, controls ≥ 3:1, never colour alone (✓ Picked, ✓ Most picked, words on the turnout bar).

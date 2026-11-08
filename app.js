@@ -155,7 +155,39 @@
   /* ---------------- views: shared pieces ---------------- */
 
   function topBar(left, right) {
-    return h('div', { class: 'bar' }, h('div', { class: 'bar-left' }, left), right || null);
+    return h('div', { class: 'bar' }, h('div', { class: 'bar-left' }, left),
+      h('div', { class: 'bar-right' }, right || null, helpButton()));
+  }
+
+  // The shared Ellenial "?" (ellenial-help.js, decided 8 Nov 2026): help only when someone asks for it.
+  // Every Ellenial app comes in English and Swedish (Ellen, 8 Nov): Poll's screens are English for now,
+  // so the help follows that; the Swedish text is ready for when Poll gets its language switch.
+  var LANG = 'en';
+  var HELP = {
+    en: { label: 'How it works', title: 'How it works', lead: 'Three steps, about a minute.', done: 'Got it', close: 'Close',
+      steps: [
+        { title: 'Ask your question', text: 'Pick one, yes / no / maybe, or pick any. Up to ' + LIMITS.options + ' options.' },
+        { title: 'Let the room vote', text: 'Everyone opens the link or scans the QR code and votes on their own phone. No names.' },
+        { title: 'Close and see the result', text: 'Shares show once ' + MIN_SHARES + ' people have voted. When you end the poll, everything is gone.' }
+      ],
+      note: 'Votes pass through encrypted and are never saved anywhere.', more: 'More about privacy' },
+    sv: { label: 'Så funkar det', title: 'Så funkar det', lead: 'Tre steg, ungefär en minut.', done: 'Uppfattat', close: 'Stäng',
+      steps: [
+        { title: 'Ställ din fråga', text: 'Välj ett, ja / nej / kanske, eller välj flera. Upp till ' + LIMITS.options + ' alternativ.' },
+        { title: 'Låt rummet rösta', text: 'Alla öppnar länken eller skannar QR-koden och röstar på sin egen telefon. Inga namn.' },
+        { title: 'Stäng och se resultatet', text: 'Andelar visas när ' + MIN_SHARES + ' personer har röstat. När du avslutar omröstningen är allt borta.' }
+      ],
+      note: 'Rösterna skickas krypterade och sparas aldrig någonstans.', more: 'Mer om integritet' }
+  };
+  function helpButton() {
+    if (!window.EllenialHelp) return null;
+    var hp = HELP[LANG];
+    return EllenialHelp.button({ label: hp.label, onclick: function () {
+      // The privacy page replaces the screen, so it's only offered when no room is running.
+      var back = app.firstChild;
+      EllenialHelp.open({ title: hp.title, lead: hp.lead, image: '/icons/help-tile.png', steps: hp.steps, note: hp.note, done: hp.done, close: hp.close,
+        more: room ? null : { label: hp.more, onclick: function () { show(howView(function () { show(back); })); } } });
+    } });
   }
   function wordmark() { return h('a', { class: 'wordmark', href: '/' }, 'poll'); }
   function backButton(onBack) {
@@ -246,7 +278,7 @@
         } }, icon('plus'), 'Add an option') : null);
     }
     return h('div', { class: 'page' },
-      topBar(wordmark(), h('button', { class: 'btn link', onclick: function () { show(howView(function () { show(createView()); })); } }, 'How this works')),
+      topBar(wordmark()),
       h('h1', { class: 'q', text: 'Ask the room' }),
       h('label', { class: 'field' }, h('span', { text: 'Your question' }),
         h('textarea', { class: 'input', maxlength: LIMITS.question, placeholder: 'Where should the summer party be?', value: draft.question,
