@@ -1,10 +1,6 @@
 # ellenial poll — Project Guide
 
-<<<<<<< HEAD
 Read this first in every session. Poll app under **Ellenial**, English and Swedish. Project notes and decisions also live in the claude.ai Project "Ellenial Poll" (`claude/ellenial-poll-project.md`). Approved mock-ups: https://claude.ai/artifact/GHvJP1rQrt6BtwVLBR7qm2
-=======
-Read this first in every session. Poll app in English and Swedish, under **Ellenial**. Project notes and decisions also live in the claude.ai Project "Ellenial Poll" (`claude/ellenial-poll-project.md`). Approved mock-ups: https://claude.ai/artifact/GHvJP1rQrt6BtwVLBR7qm2
->>>>>>> i18n
 
 ## Infrastructure
 - **Code:** GitHub `phoenixcyberpunk/ellenial-poll` (public, AGPL-3.0).
@@ -31,18 +27,10 @@ Read this first in every session. Poll app in English and Swedish, under **Ellen
 - Ellen (8 Nov): every Ellenial app must be in English and Swedish. Help step 3 updated 8 Nov to the new results rule (EN + SV).
 
 ## Languages (8 Nov 2026)
-<<<<<<< HEAD
 - Every word on screen lives in the `T` table (`en`, `sv`); `t()` gives the current one. Nothing user-facing outside it.
 - Same pattern as ellenial bingo: the saved choice (`ep:lang`) wins, else the phone's language (sv/nb/nn/no/da → Swedish, else English). A "Svenska" / "English" pill sits top-right next to the "?" (`langButton`), on every screen except the host's live and results screens.
 - Each phone has its own language. The poll's own words are set by the host when it opens: yes / no / maybe becomes Ja / Nej / Kanske in a Swedish host's poll, and stays so for every phone.
 - Swedish uses "värd" for host and "omröstning" for poll.
-=======
-- `ellenial-lang.js` (loaded before app.js, not deferred): the code is written in English and every visible text goes through `tx('English text')`; the file holds the Swedish dictionary keyed by the English. Add a new text = wrap it in `tx()` AND add its Swedish there.
-- Language = `?lang=sv|en` (testing, not saved) → saved choice `ep:lang` → the phone's language (sv, nb, nn, no, da give Swedish). So every phone in a room reads its own language.
-- The switch ("Svenska" / "English") sits only on Make a poll, because switching reloads the page; a running room is never reloaded. The typed draft survives the reload via sessionStorage `ep:draft`.
-- Yes / No / Maybe options are written in the host's language when the poll opens.
-- Tested 8 Nov in Playwright, Swedish phone: create, switch and back (draft kept), host, phone vote, close, results on both, help sheet. No English left, axe 0, no errors. English phone gets English.
->>>>>>> i18n
 
 ## Brand
 - Final Ellenial brand, no exceptions: same tokens, fonts and theme switch as ellenial quiz (see its CLAUDE.md). Theme key `ep:theme-pref`. Test with `?theme=light|dark`. Copy in first person ("I").
@@ -66,4 +54,3 @@ Read this first in every session. Poll app in English and Swedish, under **Ellen
 - 2026-11-07: Listed and linked on ellenial.app as Alpha. TRADEMARK.md added (the Ellenial name and logo are not covered by the code licence). Next gate: onboarding ('how it works in 3 steps', shared with Quiz and Party games) and the real-phone test.
 - 2026-11-08 (late): Ellen approved the Swedish screens and mock-ups 7–9. English + Swedish and Keep the result (picture + PDF on every phone) merged to main and deployed.
 - 2026-11-08: Ellen approved mock-ups 5 and 6. Built and deployed: Poll rules card (change vote, hide until close) on Make a poll, fixed hidden line on the host view, changeable votes, the 4 Nov results rule, explainer point 3 and the trimmed results note. Ship check (beta gate) run the same day: see the claude.ai Project notes.
-- 2026-11-08: Swedish added on branch `i18n` (preview); Ellen said go 8 Nov 22:01 with no changes, merged to `main` and live.
