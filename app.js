@@ -168,14 +168,14 @@
       steps: [
         { title: 'Ask your question', text: 'Pick one, yes / no / maybe, or pick any. Up to ' + LIMITS.options + ' options.' },
         { title: 'Let the room vote', text: 'Everyone opens the link or scans the QR code and votes on their own phone. No names.' },
-        { title: 'Close and see the result', text: 'Shares show once ' + MIN_SHARES + ' people have voted. When you end the poll, everything is gone.' }
+        { title: 'Close and see the result', text: 'While it’s open, shares show from ' + MIN_SHARES + ' votes. When you close, everyone sees the result. When you end the poll, everything is gone.' }
       ],
       note: 'Votes pass through encrypted and are never saved anywhere.', more: 'More about privacy' },
     sv: { label: 'Så funkar det', title: 'Så funkar det', lead: 'Tre steg, ungefär en minut.', done: 'Uppfattat', close: 'Stäng',
       steps: [
         { title: 'Ställ din fråga', text: 'Välj ett, ja / nej / kanske, eller välj flera. Upp till ' + LIMITS.options + ' alternativ.' },
         { title: 'Låt rummet rösta', text: 'Alla öppnar länken eller skannar QR-koden och röstar på sin egen telefon. Inga namn.' },
-        { title: 'Stäng och se resultatet', text: 'Andelar visas när ' + MIN_SHARES + ' personer har röstat. När du avslutar omröstningen är allt borta.' }
+        { title: 'Stäng och se resultatet', text: 'Medan den är öppen visas andelar från ' + MIN_SHARES + ' röster. När du stänger ser alla resultatet. När du avslutar omröstningen är allt borta.' }
       ],
       note: 'Rösterna skickas krypterade och sparas aldrig någonstans.', more: 'Mer om integritet' }
   };
