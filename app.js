@@ -32,7 +32,7 @@
       connected: 'Connected', connecting: 'Connecting…',
       privacy: 'No names, ever. Your vote passes through to the host’s screen and is never saved. ',
       hostPrivacy: 'Anonymous voting: as host you see how many voted and for what, never who. The poll and its result disappear when you close the room.', howLink: 'How this works',
-      madeBy: 'Made by me, with the help of AI · ', anApp: 'An Ellenial app',
+      madeBy: 'Drawn and designed by me, coded with the help of AI · ', anApp: 'An Ellenial app',
       back: 'Back', appearance: 'Appearance', themes: { auto: 'Auto', light: 'Light', dark: 'Dark' },
       howTitle: 'How this works', howLead: 'I built this so a room can decide something quickly, without anyone handing over their name or data.',
       points: function (n) { return [
@@ -95,7 +95,7 @@
       connected: 'Ansluten', connecting: 'Ansluter…',
       privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ',
       hostPrivacy: 'Anonym omröstning: som värd ser du hur många som röstat och på vad, aldrig vem. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
-      madeBy: 'Gjord av mig, med hjälp av AI · ', anApp: 'En Ellenial-app',
+      madeBy: 'Ritat och designat av mig, kodat med hjälp av AI · ', anApp: 'En Ellenial-app',
       back: 'Tillbaka', appearance: 'Utseende', themes: { auto: 'Auto', light: 'Ljust', dark: 'Mörkt' },
       howTitle: 'Så funkar det', howLead: 'Jag byggde det här så att ett rum snabbt kan bestämma något, utan att någon behöver lämna ut sitt namn eller sina uppgifter.',
       points: function (n) { return [
