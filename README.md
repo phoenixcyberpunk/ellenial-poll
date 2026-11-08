@@ -11,7 +11,7 @@ Part of [Ellenial](https://ellenial.app): free tools made by people, for people.
 - **No names, ever.** Votes are anonymous; nobody, me included, can see who voted for what.
 - **Votes pass through, never saved.** Phones talk to the host's screen through Supabase Realtime *broadcast*. There is no table and nothing is stored. Every message is encrypted on the device (AES-GCM, key derived with HKDF from a random secret). The secret only lives in the join link after `#`, which browsers never send to a server, so not even Supabase can read the question or the votes.
 - **Nobody sees a vote move.** While the poll is open, shares only show once 5 people have voted, so nobody can match a bar jump to whoever just tapped. When the host closes, the shares show however few voted: in a small group you can see for yourselves how few you are. The host can also choose to hide results until they close.
-- **Turnout, never counts.** The host sees a five-step bar with plain words ("A few have voted", "About half the room"…), as a share of the phones in the room.
+- **Numbers for the host, shares for everyone else.** The host's screen shows statistics (joined, here now, voted, not voted yet, changed votes) and every result as votes and shares; the host's saved picture and PDF carry both. Phones show shares only, and their saved picture and PDF too. Nobody ever sees who voted for what.
 - **One vote per phone, on trust.** The phone remembers that it voted (localStorage). If the host allowed it when making the poll, people can change their vote until it closes; the new vote replaces the old one. Someone could cheat with another browser; I'd rather trust you than track you.
 - When the host ends the poll or closes the tab, everything is gone. Anyone in the room can keep the result first, as a picture or a one-page PDF, made on their own phone and saved only there. Phones keep showing the final result until they leave the page.
 - **English and Swedish.** Each phone picks its own language (the phone's setting first, then a Svenska / English switch).
@@ -23,7 +23,7 @@ Part of [Ellenial](https://ellenial.app): free tools made by people, for people.
 - Protocol (all encrypted, channel `poll:<roomId>`, event `m`):
   - phone → host: `{t:'hello', pid}` (every 3 s until seen, then every 15 s), `{t:'vote', pid, a, n}` (`a` = option index, or an array for pick-any; `n` = the phone's vote version, so a changed vote replaces the old one and a late resend can't undo it)
   - host → all: `{t:'state', phase, poll, seen, got, gv, res}` (`poll.change` says whether votes can be changed; `gv` = each phone's latest vote version, only when changing is allowed) on every change and every 4 s; `{t:'end'}`
-  - `res` is computed by the host under the privacy rules above (`resultsFor` in `app.js`); phones never receive counts.
+  - `res` is computed by the host under the privacy rules above (`resultsFor` in `app.js`); phones never receive per-option counts (the host adds those only to its own copy, `hostResults`).
 - Poll kinds: pick one, yes / no / maybe, pick any (shares are the share of voters who picked each option).
 - Limits: 300 phones per room for now (free tier); the protocol itself doesn't cap it.
 

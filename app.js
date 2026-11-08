@@ -31,12 +31,12 @@
       waiting: function (n) { return 'Results show from ' + n + ' votes'; }, waitingText: 'So no one can work out who picked what.',
       connected: 'Connected', connecting: 'Connecting…',
       privacy: 'No names, ever. Your vote passes through to the host’s screen and is never saved. ',
-      hostPrivacy: 'Anonymous voting: as host you only see the result as shares. The poll and its result disappear when you close the room.', howLink: 'How this works',
+      hostPrivacy: 'Anonymous voting: as host you see how many voted and for what, never who. The poll and its result disappear when you close the room.', howLink: 'How this works',
       madeBy: 'Made by me, with the help of AI · ', anApp: 'An Ellenial app',
       back: 'Back', appearance: 'Appearance', themes: { auto: 'Auto', light: 'Light', dark: 'Dark' },
       howTitle: 'How this works', howLead: 'I built this so a room can decide something quickly, without anyone handing over their name or data.',
       points: function (n) { return [
-        ['No names, no accounts', 'You join with a link or a QR code. Nobody, me included, can see who voted for what.'],
+        ['No names, no accounts', 'You join with a link or a QR code. Nobody, me included, can see who voted for what. The host sees how many voted and for what, never who.'],
         ['Votes pass through, never saved', 'Your vote travels encrypted to the host’s screen and is never written down anywhere. When the room closes, it’s gone.'],
         ['Nobody sees a vote move', 'While the poll is open, results only show once ' + n + ' people have voted. In a small group, the final result can still show who’s who: you’ll see how few you are.'],
         ['One vote per phone, on trust', 'Your phone remembers that it voted. Someone could cheat with another browser; I’d rather trust you than track you.'],
@@ -50,6 +50,12 @@
       hideRule: 'Hide results until I close', hideHint: 'People see the shares only after I close.',
       open: 'Open the poll', needQuestion: 'Write a question first.', needOptions: 'Add at least two different options.',
       whoVoted: 'Who has voted', turnoutNote: 'A share of the phones in the room, never a number.',
+      stats: 'Statistics', statJoined: 'have joined', statHere: 'are here now', statVoted: 'have voted', statNotYet: 'haven’t voted yet',
+      statChanged: function (n) { return n + (n === 1 ? ' has' : ' have') + ' changed their vote'; },
+      statsNote: 'Only you as host see the numbers. Voters only ever see shares.',
+      votesN: function (n) { return n + (n === 1 ? ' vote' : ' votes'); },
+      votedOf: function (v, j) { return v + ' of ' + j + ' voted'; },
+      countsNote: 'Numbers and shares for you as host. Voters only see the shares.',
       qrLabel: 'QR code to join the poll', useLink: 'Use the link', hosting: 'You’re hosting', scan: 'Scan to vote, or share the link',
       room: 'Room ', copied: 'Link copied', copyFailed: 'Copy failed', copy: 'Copy the link',
       hiddenLine: 'Results hidden until I close', close: 'Close poll and show results',
@@ -73,7 +79,7 @@
         steps: [
           { title: 'Ask your question', text: 'Pick one, yes / no / maybe, or pick any. Up to ' + LIMITS.options + ' options.' },
           { title: 'Let the room vote', text: 'Everyone opens the link or scans the QR code and votes on their own phone. No names.' },
-          { title: 'Close and see the result', text: 'While it’s open, shares show from ' + MIN_SHARES + ' votes. When you close, everyone sees the result. When you end the poll, everything is gone.' }
+          { title: 'Close and see the result', text: 'While it’s open, results show from ' + MIN_SHARES + ' votes. You see numbers and shares, voters see shares. When you close, everyone sees the result. When you end the poll, everything is gone.' }
         ],
         note: 'Votes pass through encrypted and are never saved anywhere.', more: 'More about privacy' }
     },
@@ -88,12 +94,12 @@
       waiting: function (n) { return 'Resultatet visas från ' + n + ' röster'; }, waitingText: 'Så att ingen kan räkna ut vem som valde vad.',
       connected: 'Ansluten', connecting: 'Ansluter…',
       privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ',
-      hostPrivacy: 'Anonym omröstning: som värd ser du bara resultatet i andelar. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
+      hostPrivacy: 'Anonym omröstning: som värd ser du hur många som röstat och på vad, aldrig vem. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
       madeBy: 'Gjord av mig, med hjälp av AI · ', anApp: 'En Ellenial-app',
       back: 'Tillbaka', appearance: 'Utseende', themes: { auto: 'Auto', light: 'Ljust', dark: 'Mörkt' },
       howTitle: 'Så funkar det', howLead: 'Jag byggde det här så att ett rum snabbt kan bestämma något, utan att någon behöver lämna ut sitt namn eller sina uppgifter.',
       points: function (n) { return [
-        ['Inga namn, inga konton', 'Du går med via en länk eller en QR-kod. Ingen, inte ens jag, kan se vem som röstade på vad.'],
+        ['Inga namn, inga konton', 'Du går med via en länk eller en QR-kod. Ingen, inte ens jag, kan se vem som röstade på vad. Värden ser hur många som röstat och på vad, aldrig vem.'],
         ['Rösterna går igenom, sparas aldrig', 'Din röst skickas krypterad till värdens skärm och skrivs aldrig ner någonstans. När rummet stängs är den borta.'],
         ['Ingen ser en röst flytta sig', 'Medan omröstningen är öppen visas resultatet först när ' + n + ' personer har röstat. I en liten grupp kan slutresultatet ändå avslöja vem som valde vad: ni ser själva hur få ni är.'],
         ['En röst per telefon, på förtroende', 'Din telefon kommer ihåg att den har röstat. Någon skulle kunna fuska med en annan webbläsare; jag litar hellre på dig än spårar dig.'],
@@ -107,6 +113,12 @@
       hideRule: 'Dölj resultatet tills jag stänger', hideHint: 'Andelarna syns först när jag har stängt.',
       open: 'Öppna omröstningen', needQuestion: 'Skriv en fråga först.', needOptions: 'Lägg till minst två olika alternativ.',
       whoVoted: 'Vilka har röstat', turnoutNote: 'En andel av telefonerna i rummet, aldrig en siffra.',
+      stats: 'Statistik', statJoined: 'har gått med', statHere: 'är här nu', statVoted: 'har röstat', statNotYet: 'har inte röstat än',
+      statChanged: function (n) { return n + ' har ändrat sin röst'; },
+      statsNote: 'Bara du som värd ser siffrorna. De som röstar ser bara andelar.',
+      votesN: function (n) { return n + (n === 1 ? ' röst' : ' röster'); },
+      votedOf: function (v, j) { return v + ' av ' + j + ' röstade'; },
+      countsNote: 'Antal och andelar för dig som värd. De som röstar ser bara andelarna.',
       qrLabel: 'QR-kod för att gå med i omröstningen', useLink: 'Använd länken', hosting: 'Du är värd', scan: 'Skanna för att rösta, eller dela länken',
       room: 'Rum ', copied: 'Länken är kopierad', copyFailed: 'Kunde inte kopiera', copy: 'Kopiera länken',
       hiddenLine: 'Resultatet är dolt tills jag stänger', close: 'Stäng och visa resultatet',
@@ -130,7 +142,7 @@
         steps: [
           { title: 'Ställ din fråga', text: 'Välj ett, ja / nej / kanske, eller välj flera. Upp till ' + LIMITS.options + ' alternativ.' },
           { title: 'Låt rummet rösta', text: 'Alla öppnar länken eller skannar QR-koden och röstar på sin egen telefon. Inga namn.' },
-          { title: 'Stäng och se resultatet', text: 'Medan den är öppen visas andelar från ' + MIN_SHARES + ' röster. När du stänger ser alla resultatet. När du avslutar omröstningen är allt borta.' }
+          { title: 'Stäng och se resultatet', text: 'Medan den är öppen visas resultatet från ' + MIN_SHARES + ' röster. Du ser antal och andelar, de som röstar ser andelar. När du stänger ser alla resultatet. När du avslutar omröstningen är allt borta.' }
         ],
         note: 'Rösterna skickas krypterade och sparas aldrig någonstans.', more: 'Mer om integritet' }
     }
@@ -271,6 +283,25 @@
     if (poll.hide) return { kind: 'hidden' };
     return n >= MIN_SHARES ? shares() : { kind: 'waiting' };
   }
+  // Host only (Ellen, 8 Nov: "host should be able to see/save both votes and shares"). The counts are
+  // added to the host's own copy of the result and never broadcast: phones only ever get resultsFor().
+  // They tell the host nothing the shares don't already: with the total known, 57 % of 7 is 4.
+  function hostStats() {
+    var now = Date.now(), here = 0, changed = 0;
+    Object.keys(room.seen).forEach(function (pid) { if (now - room.seen[pid] < PRESENT_MS) here++; });
+    Object.keys(room.vn).forEach(function (pid) { if (room.vn[pid] > 1 && room.votes[pid] !== undefined) changed++; });
+    var joined = Object.keys(room.seen).length, voted = Object.keys(room.votes).length;
+    return { joined: joined, here: here, voted: voted, notYet: Math.max(0, joined - voted), changed: changed };
+  }
+  function withCounts(poll, res, votes) {
+    if (!res || res.kind !== 'shares') return res;
+    var counts = poll.options.map(function () { return 0; });
+    votes.forEach(function (v) { (Array.isArray(v) ? v : [v]).forEach(function (i) { counts[i]++; }); });
+    var out = {}; Object.keys(res).forEach(function (k) { out[k] = res[k]; });
+    out.counts = counts;
+    return out;
+  }
+  function hostResults(closed) { return withCounts(room.poll, resultsFor(room.poll, voteList(), closed), voteList()); }
   function turnoutStep(votedCount, present) {
     if (!votedCount) return 0;
     var s = votedCount / Math.max(present, votedCount, 1);
@@ -329,7 +360,7 @@
         .map(function (r) {
           var isTop = res.top.indexOf(r.i) >= 0 && res.top.length < poll.options.length;
           return h('li', { class: 'res' + (isTop ? ' top' : '') },
-            h('div', { class: 'res-head' }, h('span', { class: 'txt', text: r.o }), h('span', { class: 'pct', text: r.pct + '%' })),
+            h('div', { class: 'res-head' }, h('span', { class: 'txt', text: r.o }), h('span', { class: 'pct', text: (res.counts ? t().votesN(res.counts[r.i]) + ' · ' : '') + r.pct + '%' })),
             h('div', { class: 'track', 'aria-hidden': 'true' }, h('div', { class: 'fill', style: 'width:' + r.pct + '%' })),
             isTop ? h('span', { class: 'top-tag' }, res.top.length > 1 ? t().sharedTop : t().mostPicked) : null);
         }));
@@ -489,13 +520,16 @@
       step: turnoutStep(Object.keys(room.votes).length, presentCount())
     });
   }
+  // The host's statistics card (replaced the five-step turnout bar on the host screen, 8 Nov).
   function turnoutBox() {
-    var step = turnoutStep(Object.keys(room.votes).length, presentCount());
+    var st = hostStats();
+    function tile(n, word) { return h('div', { class: 'stat' }, h('span', { class: 'stat-n', text: String(n) }), h('span', { class: 'note', text: word })); }
     return h('section', { class: 'card turnout', id: 'turnout', 'aria-labelledby': 'turnout-h' },
-      h('h2', { class: 'label', id: 'turnout-h', text: t().whoVoted }),
-      h('div', { class: 'steps', role: 'img', 'aria-label': t().steps[step] }, [0, 1, 2, 3, 4].map(function (i) { return h('span', { class: i < STEP_FILL[step] ? 'on' : '' }); })),
-      h('span', { class: 'turnout-word', 'aria-live': 'polite', text: t().steps[step] }),
-      h('span', { class: 'note', text: t().turnoutNote }));
+      h('h2', { class: 'label', id: 'turnout-h', text: t().stats }),
+      h('div', { class: 'stats', role: 'status' },
+        tile(st.joined, t().statJoined), tile(st.here, t().statHere), tile(st.voted, t().statVoted), tile(st.notYet, t().statNotYet)),
+      room.poll.change && st.changed ? h('span', { class: 'note', style: 'color:var(--ink)', text: t().statChanged(st.changed) }) : null,
+      h('span', { class: 'note', text: t().statsNote }));
   }
   function renderTurnout() {
     var el = document.getElementById('turnout');
@@ -503,7 +537,7 @@
   }
   function renderLiveResults() {
     var el = document.getElementById('live');
-    if (el && room) el.replaceChildren(resultList(room.poll, resultsFor(room.poll, voteList(), false)));
+    if (el && room) el.replaceChildren(resultList(room.poll, hostResults(false)));
   }
   function renderHost(focus) {
     if (!room || room.role !== 'host') return;
@@ -529,7 +563,7 @@
       turnoutBox(),
       room.poll.hide
         ? h('div', { class: 'fixed-rule' }, icon('eyeOff', 20), h('span', { text: t().hiddenLine }))
-        : h('div', { id: 'live' }, resultList(room.poll, resultsFor(room.poll, voteList(), false))),
+        : h('div', { id: 'live' }, resultList(room.poll, hostResults(false))),
       h('div', { class: 'grow' }),
       h('button', { class: 'btn', onclick: closePoll }, t().close));
     show(view);
@@ -537,7 +571,8 @@
   function closePoll() {
     room.phase = 'closed';
     room.closedAt = new Date();
-    room.final = resultsFor(room.poll, voteList(), true);
+    room.final = hostResults(true);
+    room.finalStats = hostStats();
     broadcastState();
     show(hostResultsView());
   }
@@ -547,12 +582,12 @@
     return h('div', { class: 'page' },
       topBar(wordmark(), h('span', { class: 'chip' }, icon('lock', 14), t().closed), true),
       h('div', { class: 'stack', style: 'gap:8px' },
-        h('p', { class: 'kicker', text: t().results + t().steps[step].toLowerCase() }),
+        h('p', { class: 'kicker', text: t().results + t().votedOf(room.finalStats.voted, room.finalStats.joined) }),
         h('h1', { class: 'q', tabindex: '-1', 'data-focus': true, text: room.poll.q })),
       resultList(room.poll, res),
-      res.kind === 'shares' ? h('p', { class: 'note', text: t().sharesNote }) : null,
+      res.kind === 'shares' ? h('p', { class: 'note', text: t().countsNote }) : null,
       h('div', { class: 'grow' }),
-      res.kind === 'shares' ? saveBlock(room.poll, res, step, room.closedAt, false) : null,
+      res.kind === 'shares' ? saveBlock(room.poll, res, step, room.closedAt, false, room.finalStats) : null,
       h('button', { class: 'btn', onclick: endRoom }, t().end),
       h('p', { class: 'foot', text: t().endNote }));
   }
@@ -597,11 +632,13 @@
       roundRect(ctx, pad, y, W - pad * 2, rowH, 28);
       ctx.fillStyle = isTop ? c('--peri') : c('--surface'); ctx.fill();
       ctx.fillStyle = isTop ? c('--on-peri') : c('--ink');
+      var right = res.kind === 'shares' ? (res.counts ? t().votesN(res.counts[r.i]) + ' · ' : '') + r.pct + '%' : '';
+      ctx.font = '600 42px Fraunces, Georgia, serif'; var rw = right ? ctx.measureText(right).width + 40 : 0;
       ctx.font = '500 36px "DM Sans", system-ui, sans-serif';
-      ctx.fillText(ellipsis(ctx, r.o, W - pad * 2 - 220), pad + 32, y + 56);
+      ctx.fillText(ellipsis(ctx, r.o, W - pad * 2 - 64 - Math.max(rw, 156)), pad + 32, y + 56);
       if (res.kind === 'shares') {
         ctx.font = '600 42px Fraunces, Georgia, serif'; ctx.textAlign = 'right';
-        ctx.fillText(r.pct + '%', W - pad - 32, y + 58); ctx.textAlign = 'left';
+        ctx.fillText(right, W - pad - 32, y + 58); ctx.textAlign = 'left';
         roundRect(ctx, pad + 32, y + 88, W - pad * 2 - 64, 24, 12); ctx.fillStyle = c('--soft'); ctx.fill();
         if (r.pct > 0) { roundRect(ctx, pad + 32, y + 88, Math.max(24, (W - pad * 2 - 64) * r.pct / 100), 24, 12); ctx.fillStyle = c('--accent'); ctx.fill(); }
       } else {
@@ -636,7 +673,7 @@
   // The page is drawn on a canvas in A4 points (595 × 842) at 2.5× and placed in a hand-written PDF,
   // the same way ellenial bingo builds its cards. White, to save ink when printed.
   var A4W = 595.28, A4H = 841.89, PDF_SCALE = 2.5;
-  function drawPdfPage(poll, res, step, when) {
+  function drawPdfPage(poll, res, step, when, stats) {
     var cv = document.createElement('canvas'), ctx = cv.getContext('2d');
     cv.width = Math.round(A4W * PDF_SCALE); cv.height = Math.round(A4H * PDF_SCALE);
     ctx.scale(PDF_SCALE, PDF_SCALE);
@@ -656,7 +693,8 @@
     y += 24;
     ctx.fillStyle = MUTED; ctx.font = '400 13px ' + SANS;
     var kind = (t().types[poll.type] || t().types.single).label;
-    ctx.fillText(kind + (step != null && t().done[step] ? ' · ' + t().done[step] : ''), L, y);
+    var how = stats ? t().votedOf(stats.voted, stats.joined) : step != null && t().done[step] ? t().done[step] : '';
+    ctx.fillText(kind + (how ? ' · ' + how : ''), L, y);
     y += 18;
     ctx.fillStyle = ACCENT; ctx.fillRect(L, y, Wd, 2);
     y += 20;
@@ -669,8 +707,11 @@
         if (isTop) { roundRect(ctx, L, y, Wd, hgt, 14); ctx.strokeStyle = ACCENT; ctx.lineWidth = 2; ctx.stroke(); }
         var ty = y + padY + 15;
         ctx.fillStyle = INK; ctx.font = (isTop ? '700' : '500') + ' 16px ' + SANS;
-        ctx.fillText(ellipsis(ctx, r.o, Wd - 32 - 70), L + 16, ty);
-        ctx.font = '600 22px ' + SERIF; ctx.textAlign = 'right'; ctx.fillText(r.pct + '%', R - 16, ty + 2); ctx.textAlign = 'left';
+        var right = (res.counts ? t().votesN(res.counts[r.i]) + ' · ' : '') + r.pct + '%';
+        ctx.font = '600 22px ' + SERIF; var rw = ctx.measureText(right).width;
+        ctx.font = (isTop ? '700' : '500') + ' 16px ' + SANS;
+        ctx.fillText(ellipsis(ctx, r.o, Wd - 48 - rw), L + 16, ty);
+        ctx.font = '600 22px ' + SERIF; ctx.textAlign = 'right'; ctx.fillText(right, R - 16, ty + 2); ctx.textAlign = 'left';
         var by = y + padY + 18 + 8;
         roundRect(ctx, L + 16, by, Wd - 32, 12, 6); ctx.fillStyle = TRACK; ctx.fill();
         if (r.pct > 0) { roundRect(ctx, L + 16, by, Math.max(12, (Wd - 32) * r.pct / 100), 12, 6); ctx.fillStyle = ACCENT; ctx.fill(); }
@@ -680,7 +721,7 @@
     var fy = A4H - 44;
     ctx.fillStyle = RULE; ctx.fillRect(L, fy - 22, Wd, 1);
     ctx.fillStyle = MUTED; ctx.font = '400 11px ' + SANS;
-    ctx.fillText(t().pdfFoot, L, fy);
+    ctx.fillText(res.counts ? t().countsNote : t().pdfFoot, L, fy);
     ctx.textAlign = 'right'; ctx.fillText('poll.ellenial.app', R, fy); ctx.textAlign = 'left';
     return cv;
   }
@@ -713,19 +754,19 @@
     push(x2 + 'trailer\n<< /Size 7 /Root 1 0 R /Info 3 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
     return new Blob(parts, { type: 'application/pdf' });
   }
-  function savePdf(poll, res, step, when) {
+  function savePdf(poll, res, step, when, stats) {
     fontsReady().then(function () {
-      var cv = drawPdfPage(poll, res, step, when || new Date());
+      var cv = drawPdfPage(poll, res, step, when || new Date(), stats);
       handOver(buildPdf(jpegBytes(cv), cv.width, cv.height, poll.q), t().pdfFile, 'application/pdf');
     });
   }
   // "Keep the result": a picture or a PDF, both made here and saved only on this phone (mock-ups 7 and 8).
-  function saveBlock(poll, res, step, when, withNote) {
+  function saveBlock(poll, res, step, when, withNote, stats) {
     return h('div', { class: 'stack save-block' },
       h('span', { class: 'save-label', text: t().keep }),
       h('div', { class: 'save-grid' },
         h('button', { class: 'btn ghost', id: 'save-pic', onclick: function () { fontsReady().then(function () { saveImage(poll, res); }); } }, icon('image'), t().asPic),
-        h('button', { class: 'btn ghost', id: 'save-pdf', onclick: function () { savePdf(poll, res, step, when); } }, icon('file'), t().asPdf)),
+        h('button', { class: 'btn ghost', id: 'save-pdf', onclick: function () { savePdf(poll, res, step, when, stats); } }, icon('file'), t().asPdf)),
       withNote ? h('div', { class: 'privacy' }, icon('lock'), h('span', { text: t().saveNote })) : null);
   }
   function validShares(poll, res) {
