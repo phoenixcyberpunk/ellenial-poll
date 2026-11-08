@@ -47,7 +47,7 @@ Read this first in every session. Poll app under **Ellenial**, English and Swedi
 
 ## Open
 - Live test with real phones of the 8 Nov build.
-- App icon: Ellen has made it (8 Nov), adding it soon. Then manifest and favicon.
+- (Done 8 Nov) App icon: Ellen's drawing (bar chart with little people) on a mint `#CBE7E4` tile, no name; favicon + apple-touch icon added. Home-screen name "Poll", tab "Poll · Ellenial", header has a small "Ellenial" above "Poll". A manifest is still missing.
 - Pentest along with the other apps (public broadcast channel is encrypted but floodable). 8 Nov: host broadcasts are now coalesced (`queueState`, max one per 500 ms) so phones can't make the host flood the shared Supabase project. Still open: anyone with the link can add fake phones up to the 300 cap (honour-based, said openly).
 
 ## Status
