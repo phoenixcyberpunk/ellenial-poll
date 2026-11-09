@@ -5,7 +5,7 @@ Read this first in every session. Poll app under **Ellenial**, English and Swedi
 ## Infrastructure
 - **Code:** GitHub `phoenixcyberpunk/ellenial-poll` (public, AGPL-3.0).
 - **Hosting:** Vercel team "The Ellenial Project" (`the-ellenial-project`), project `ellenial-poll`, domain `poll.ellenial.app`.
-- **Live connection:** Supabase project `gillefeeling` (ref `knvrvmqdxvcatsrvkrgx`), **Realtime broadcast only**: no tables, no functions, no migrations. Channel `poll:<roomId>`, event `m`, payload `{ b: "1." + base64url(iv‖ciphertext) }`. HKDF salt/info and AAD prefix `ep1|`.
+- **Live connection:** Supabase project `gillefeeling` (ref `knvrvmqdxvcatsrvkrgx`), **Realtime broadcast only** for the poll: no poll tables or data. **Exception (9 Nov 2026):** a daily visit counter for Ellen's Ongoing board: `api/visit.js` (Vercel function) calls `public.poll_count_visit()` once per phone per Stockholm day, which can only add 1 to `ellenial_poll.daily_visits` (migration in `supabase/migrations`). The page side is `countVisit()` at the end of `app.js`, real address only. The help text says so openly. Channel `poll:<roomId>`, event `m`, payload `{ b: "1." + base64url(iv‖ciphertext) }`. HKDF salt/info and AAD prefix `ep1|`.
 - **Stack:** plain HTML/CSS/JS, no build. `vendor/` and `fonts/` copied from ellenial quiz.
 - **Shared live room:** `ellenial-room.js` (window.EllenialRoom) is the quiz's encrypted broadcast engine pulled out into one reusable file, like `ellenial-theme.js`. Other apps (the turn queue first) copy it unchanged and pick their own `app` prefix and crypto `tag`. Quiz still has its own inline copy for now.
 
