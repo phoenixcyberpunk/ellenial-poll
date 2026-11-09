@@ -32,7 +32,7 @@
       connected: 'Connected', connecting: 'Connecting…',
       privacy: 'No names, ever. Your vote passes through to the host’s screen and is never saved. ',
       hostPrivacy: 'Anonymous voting: as host you see how many voted and for what, never who. The poll and its result disappear when you close the room.', howLink: 'How this works',
-      drawn: 'Drawn', madeBy: ' and designed by me, coded with the help of AI · ', anApp: 'An Ellenial app',
+      drawn: 'Drawn', madeBy: ' and designed by me, coded with the help of AI.', anApp: 'An Ellenial tool', footPromise: 'Free · no ads · no trackers', footCounter: 'In this app: a simple visit counter', footSource: 'Source', footThanks: 'Thanks',
       back: 'Back', appearance: 'Appearance', themes: { auto: 'Auto', light: 'Light', dark: 'Dark' },
       howTitle: 'How this works', howLead: 'I built this so a room can decide something quickly, without anyone handing over their name or data.',
       points: function (n) { return [
@@ -40,7 +40,7 @@
         ['Votes pass through, never saved', 'Your vote travels encrypted to the host’s screen and is never written down anywhere. When the room closes, it’s gone.'],
         ['Nobody sees a vote move', 'While the poll is open, results only show once ' + n + ' people have voted. In a small group, the final result can still show who’s who: you’ll see how few you are.'],
         ['One vote per phone, on trust', 'Your phone remembers that it voted. Someone could cheat with another browser; I’d rather trust you than track you.'],
-        ['Free and open', 'No ads, no trackers, no paywall. I only count how many phones open Poll each day, nothing more. The code is public for anyone to check.']
+        ['Free and open', 'No ads, no trackers, no paywall. In this app: a simple visit counter. The code is public for anyone to check.']
       ]; },
       code: 'The code: ',
       askTitle: 'Ask the room', question: 'Your question', questionPh: 'Where should the summer party be?', kind: 'Kind of poll',
@@ -95,7 +95,7 @@
       connected: 'Ansluten', connecting: 'Ansluter…',
       privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ',
       hostPrivacy: 'Anonym omröstning: som värd ser du hur många som röstat och på vad, aldrig vem. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
-      drawn: 'Ritat', madeBy: ' och designat av mig, kodat med hjälp av AI · ', anApp: 'En Ellenial-app',
+      drawn: 'Ritat', madeBy: ' och designat av mig, kodat med hjälp av AI.', anApp: 'Ett Ellenial-verktyg', footPromise: 'Gratis · inga annonser · inga trackers', footCounter: 'I den här appen: en enkel besöksräknare', footSource: 'Källkod', footThanks: 'Tack',
       back: 'Tillbaka', appearance: 'Utseende', themes: { auto: 'Auto', light: 'Ljust', dark: 'Mörkt' },
       howTitle: 'Så funkar det', howLead: 'Jag byggde det här så att ett rum snabbt kan bestämma något, utan att någon behöver lämna ut sitt namn eller sina uppgifter.',
       points: function (n) { return [
@@ -103,7 +103,7 @@
         ['Rösterna går igenom, sparas aldrig', 'Din röst skickas krypterad till värdens skärm och skrivs aldrig ner någonstans. När rummet stängs är den borta.'],
         ['Ingen ser en röst flytta sig', 'Medan omröstningen är öppen visas resultatet först när ' + n + ' personer har röstat. I en liten grupp kan slutresultatet ändå avslöja vem som valde vad: ni ser själva hur få ni är.'],
         ['En röst per telefon, på förtroende', 'Din telefon kommer ihåg att den har röstat. Någon skulle kunna fuska med en annan webbläsare; jag litar hellre på dig än spårar dig.'],
-        ['Gratis och öppen', 'Ingen reklam, inga spårare, ingen betalvägg. Jag räknar bara hur många telefoner som öppnar Poll varje dag, inget mer. Koden är öppen för alla att granska.']
+        ['Gratis och öppen', 'Ingen reklam, inga spårare, ingen betalvägg. I den här appen: en enkel besöksräknare. Koden är öppen för alla att granska.']
       ]; },
       code: 'Koden: ',
       askTitle: 'Fråga rummet', question: 'Din fråga', questionPh: 'Var ska sommarfesten vara?', kind: 'Typ av omröstning',
@@ -349,8 +349,18 @@
       h('span', null, forHost ? t().hostPrivacy : t().privacy,
         withLink ? h('button', { class: 'btn link', style: 'min-height:auto;padding:0;font-size:inherit', onclick: onHow }, t().howLink) : null));
   }
-  function signature() {
-    return h('p', { class: 'foot' }, h('a', { href: 'https://ellenial.app/drawings' }, t().drawn), t().madeBy, h('a', { href: 'https://ellenial.app' }, t().anApp));
+  // The shared Ellenial footer (9 Nov 2026): same lines and order in every app, controls last.
+  function signature(withTheme) {
+    return h('footer', { class: 'ell-foot' },
+      h('div', { class: 'ell-shared' },
+        h('p', null, h('a', { href: 'https://ellenial.app/drawings' }, t().drawn), t().madeBy),
+        h('p', { text: t().footPromise }),
+        h('p', { text: t().footCounter }),
+        h('p', null,
+          h('a', { href: 'https://ellenial.app' }, t().anApp), ' · ',
+          h('a', { href: 'https://github.com/phoenixcyberpunk/ellenial-poll' }, t().footSource), ' · ',
+          h('a', { href: 'https://ellenial.app/thanks' }, t().footThanks))),
+      withTheme ? h('div', { class: 'ell-controls theme-row' }, themeSwitch()) : null);
   }
   function resultList(poll, res) {
     if (res.kind === 'shares') {
@@ -391,8 +401,7 @@
       })),
       h('p', { class: 'note' }, t().code, h('a', { href: 'https://github.com/phoenixcyberpunk/ellenial-poll' }, 'github.com/phoenixcyberpunk/ellenial-poll'), ' (AGPL-3.0).'),
       h('div', { class: 'grow' }),
-      h('div', { class: 'theme-row' }, h('span', { class: 'label', text: t().appearance }), themeSwitch()),
-      signature());
+      signature(true));
   }
 
   /* ---------------- host: create ---------------- */
@@ -442,8 +451,7 @@
       h('button', { class: 'btn', onclick: startPoll }, t().open),
       privacyLine(false, null, true),
       h('div', { class: 'grow' }),
-      h('div', { class: 'theme-row' }, themeSwitch()),
-      signature());
+      signature(true));
   }
   function startPoll() {
     var question = clean(draft.question, LIMITS.question);
