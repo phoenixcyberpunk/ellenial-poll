@@ -201,3 +201,8 @@ textarea.input { resize: vertical; min-height: 76px; }
 .ell-notes { display: flex; flex-direction: column; gap: 4px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; line-height: 19px; max-width: 520px; }
 .ell-shared { display: flex; flex-direction: column; gap: 6px; }
 .ell-controls { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; }
+
+/* App icon beside the eyebrow and name, like Lunch, Weather, Quiz and Present (9 Nov 2026) */
+.wordmark { display: inline-flex; align-items: center; gap: 10px; }
+.wordmark .brand-icon { width: 44px; height: 44px; border-radius: 10px; flex: none; display: block; }
+.wordmark .brand-name { display: flex; flex-direction: column; }

@@ -339,7 +339,7 @@
         more: room ? null : { label: hp.more, onclick: function () { show(howView(function () { show(back); })); } } });
     } });
   }
-  function wordmark() { return h('a', { class: 'wordmark', href: '/' }, h('span', { class: 'ellenial-eyebrow', text: 'Ellenial' }), 'Poll'); }
+  function wordmark() { return h('a', { class: 'wordmark', href: '/' }, h('img', { class: 'brand-icon', src: '/icons/icon-192.png', alt: '', width: '44', height: '44' }), h('span', { class: 'brand-name' }, h('span', { class: 'ellenial-eyebrow', text: 'Ellenial' }), 'Poll')); }
   function backButton(onBack) {
     return h('button', { class: 'round', 'aria-label': t().back, onclick: onBack }, icon('back', 22));
   }
