@@ -95,7 +95,7 @@
       connected: 'Ansluten', connecting: 'Ansluter…',
       privacy: 'Inga namn, någonsin. Din röst går direkt till värdens skärm och sparas aldrig. ',
       hostPrivacy: 'Anonym omröstning: som värd ser du hur många som röstat och på vad, aldrig vem. Omröstningen och resultatet försvinner när du stänger rummet.', howLink: 'Så funkar det',
-      drawn: 'Ritat', madeBy: ' och designat av mig, kodat med hjälp av AI.', anApp: 'Ett Ellenial-verktyg', footPromise: 'Gratis · inga annonser · inga trackers', footCounter: 'I den här appen: en enkel besöksräknare', footSource: 'Källkod', footThanks: 'Tack',
+      drawn: 'Ritat', madeBy: ' och designat av mig, kodat med hjälp av AI.', anApp: 'Ett Ellenial-verktyg', footPromise: 'Gratis · inga annonser · inga trackers', footCounter: 'I den här appen: en enkel besöksräknare', footSource: 'GitHub', footThanks: 'Tack',
       back: 'Tillbaka', appearance: 'Utseende', themes: { auto: 'Auto', light: 'Ljust', dark: 'Mörkt' },
       howTitle: 'Så funkar det', howLead: 'Jag byggde det här så att ett rum snabbt kan bestämma något, utan att någon behöver lämna ut sitt namn eller sina uppgifter.',
       points: function (n) { return [
