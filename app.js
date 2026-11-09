@@ -40,7 +40,7 @@
         ['Votes pass through, never saved', 'Your vote travels encrypted to the host’s screen and is never written down anywhere. When the room closes, it’s gone.'],
         ['Nobody sees a vote move', 'While the poll is open, results only show once ' + n + ' people have voted. In a small group, the final result can still show who’s who: you’ll see how few you are.'],
         ['One vote per phone, on trust', 'Your phone remembers that it voted. Someone could cheat with another browser; I’d rather trust you than track you.'],
-        ['Free and open', 'No ads, no trackers, no paywall. The code is public for anyone to check.']
+        ['Free and open', 'No ads, no trackers, no paywall. I only count how many phones open Poll each day, nothing more. The code is public for anyone to check.']
       ]; },
       code: 'The code: ',
       askTitle: 'Ask the room', question: 'Your question', questionPh: 'Where should the summer party be?', kind: 'Kind of poll',
@@ -103,7 +103,7 @@
         ['Rösterna går igenom, sparas aldrig', 'Din röst skickas krypterad till värdens skärm och skrivs aldrig ner någonstans. När rummet stängs är den borta.'],
         ['Ingen ser en röst flytta sig', 'Medan omröstningen är öppen visas resultatet först när ' + n + ' personer har röstat. I en liten grupp kan slutresultatet ändå avslöja vem som valde vad: ni ser själva hur få ni är.'],
         ['En röst per telefon, på förtroende', 'Din telefon kommer ihåg att den har röstat. Någon skulle kunna fuska med en annan webbläsare; jag litar hellre på dig än spårar dig.'],
-        ['Gratis och öppen', 'Ingen reklam, inga spårare, ingen betalvägg. Koden är öppen för alla att granska.']
+        ['Gratis och öppen', 'Ingen reklam, inga spårare, ingen betalvägg. Jag räknar bara hur många telefoner som öppnar Poll varje dag, inget mer. Koden är öppen för alla att granska.']
       ]; },
       code: 'Koden: ',
       askTitle: 'Fråga rummet', question: 'Din fråga', questionPh: 'Var ska sommarfesten vara?', kind: 'Typ av omröstning',
@@ -954,4 +954,17 @@
   }
   window.addEventListener('popstate', function () { if (room && room.role === 'host') renderHost(); });
   route();
+
+  // Visit counter for Ellen's project board: one count per browser per day, nothing else.
+  // The date is remembered in this browser only; the server just adds 1 to today's number.
+  (function countVisit() {
+    try {
+      if (!(location.hostname === 'poll.ellenial.app')) return;
+      var day = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm' }).format(new Date());
+      if (localStorage.getItem('ellenial-poll:counted') === day) return;
+      localStorage.setItem('ellenial-poll:counted', day);
+      if (navigator.sendBeacon) navigator.sendBeacon('/api/visit');
+      else fetch('/api/visit', { method: 'POST', keepalive: true }).catch(function () {});
+    } catch (e) { /* private mode or storage off: skip counting rather than count every load */ }
+  })();
 })();
